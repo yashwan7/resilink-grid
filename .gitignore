@@ -1,0 +1,16 @@
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
+# Local databases and runtime state (recreated cleanly on start)
+hub/data/*.db*
+hub/data/checkpoints_mirror/*
+hub/.pytest_cache/
+
+# Environment
+.env
+.venv/
+env/
+venv/
