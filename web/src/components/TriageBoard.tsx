@@ -12,13 +12,15 @@ import {
   FileText,
   GitMerge,
   CheckCircle2,
-  PhoneCall
+  PhoneCall,
+  Globe
 } from 'lucide-react';
 import { TriagePatient, RiskClass, PriorityClass, VitalsSample } from '../types';
 import { calculateFinePriorityScore, compareTriagePatients, resolveMedicConflict, MedicBatchUpdate, ConflictResult } from '../triage/ranking';
 import { HubApi, EmergencyAssignment } from '../mock/hubApi';
 import { createSignedSnapshotRequest, reconstructHistory } from '../delta/snapshot';
 import { generateDoctorKeyPair, decompressP256Point, bytesToHex } from '../crypto/p256';
+import { DoctorDownloadModal } from './DownloadReportModal';
 
 interface TriageBoardProps {
   unlocked: boolean;
@@ -36,6 +38,7 @@ export const TriageBoard: React.FC<TriageBoardProps> = ({ unlocked, onUnlockTogg
   // Conflict simulation state
   const [conflictModalOpen, setConflictModalOpen] = useState(false);
   const [conflictResult, setConflictResult] = useState<ConflictResult | null>(null);
+  const [downloadModalOpen, setDownloadModalOpen] = useState(false);
 
   // Load initial triage queue from hub
   useEffect(() => {
@@ -557,6 +560,25 @@ export const TriageBoard: React.FC<TriageBoardProps> = ({ unlocked, onUnlockTogg
                   </button>
 
                   <button
+                    onClick={() => setDownloadModalOpen(true)}
+                    style={{
+                      backgroundColor: '#0284c7',
+                      color: '#fff',
+                      padding: '9px',
+                      borderRadius: '6px',
+                      fontSize: '12px',
+                      fontWeight: 600,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '8px'
+                    }}
+                  >
+                    <Globe size={15} />
+                    Export Multilingual Patient Report (Sarvam AI)
+                  </button>
+
+                  <button
                     onClick={() => handleSimulateConflict(selectedPatient)}
                     style={{
                       backgroundColor: '#374151',
@@ -655,6 +677,18 @@ export const TriageBoard: React.FC<TriageBoardProps> = ({ unlocked, onUnlockTogg
             </button>
           </div>
         </div>
+      )}
+
+      {/* Doctor Multilingual Download Modal (Sarvam AI) */}
+      {selectedPatient && selectedPatient.vitals && selectedPatient.risk && (
+        <DoctorDownloadModal
+          isOpen={downloadModalOpen}
+          onClose={() => setDownloadModalOpen(false)}
+          patientId={selectedPatient.pseudonym}
+          vitals={selectedPatient.vitals}
+          risk={selectedPatient.risk}
+          fineScore={selectedPatient.fine_priority_score || 0}
+        />
       )}
     </div>
   );

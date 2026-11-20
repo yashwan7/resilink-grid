@@ -8,9 +8,11 @@ import {
   ShieldCheck, 
   Radio, 
   Bot, 
-  AlertCircle 
+  AlertCircle,
+  Globe
 } from 'lucide-react';
 import { HubApi } from '../mock/hubApi';
+import { SUPPORTED_LANGUAGES, translateWithSarvam } from '../services/sarvamAi';
 
 interface GrootHubDrawerProps {
   isOpen: boolean;
@@ -18,6 +20,7 @@ interface GrootHubDrawerProps {
 }
 
 export const GrootHubDrawer: React.FC<GrootHubDrawerProps> = ({ isOpen, onClose }) => {
+  const [selectedLang, setSelectedLang] = useState<string>('en-IN');
   const [messages, setMessages] = useState<{
     sender: 'user' | 'groot';
     text: string;
@@ -25,16 +28,17 @@ export const GrootHubDrawer: React.FC<GrootHubDrawerProps> = ({ isOpen, onClose 
   }[]>([
     {
       sender: 'groot',
-      text: 'I am Groot, Hub Operational Advisor. I provide answers on radio link status, active routes, hash chain validity, and ambulance dispatch. "Decision support, not a diagnosis". How may I assist staff?',
+      text: 'I am Groot, Hub Operational Advisor (Powered by Sarvam AI). I provide answers on radio link status, active routes, hash chain validity, and ambulance dispatch. "Decision support, not a diagnosis". How may I assist staff?',
       ts: Date.now() - 30000
     }
   ]);
   const [inputText, setInputText] = useState('');
   const [listening, setListening] = useState(false);
+  const [translating, setTranslating] = useState(false);
 
   if (!isOpen) return null;
 
-  const handleSendQuery = (textToSend?: string) => {
+  const handleSendQuery = async (textToSend?: string) => {
     const query = (textToSend || inputText).trim();
     if (!query) return;
 
@@ -46,34 +50,44 @@ export const GrootHubDrawer: React.FC<GrootHubDrawerProps> = ({ isOpen, onClose 
     HubApi.appendAuditRecord('GROOT_QUERY', {
       query,
       ts: Date.now(),
-      scope: 'HUB_AGGREGATES_ONLY'
+      scope: 'HUB_AGGREGATES_ONLY',
+      language: selectedLang
     });
 
-    // Generate deterministic Groot aggregate response
-    setTimeout(() => {
-      let reply = 'I am Groot. ';
-      const lower = query.toLowerCase();
+    setTranslating(true);
+    let reply = 'I am Groot. ';
+    const lower = query.toLowerCase();
 
-      if (lower.includes('link') || lower.includes('route') || lower.includes('path')) {
-        reply += 'Link state is HEALTHY on PORT_A Wi-Fi. PDR is 96.8%, RSSI -62 dBm. Next fallback is PORT_B then MESH nRF24.';
-      } else if (lower.includes('ambulance') || lower.includes('free') || lower.includes('dispatch')) {
-        reply += 'There are currently 2 ambulances FREE: AMB-1081 (KR Market, 1.2 km away) and AMB-1082 (Chamrajpet, 1.8 km away).';
-      } else if (lower.includes('hospital') || lower.includes('bed') || lower.includes('icu')) {
-        reply += 'Victoria Hospital has 18 beds and 4 ICU beds free. Manipal HAL has 32 beds and 11 ICU beds free.';
-      } else if (lower.includes('audit') || lower.includes('chain') || lower.includes('tamper')) {
-        reply += 'Hub HMAC/SHA-256 audit chain is valid. All events up to sequence #2 are cryptographic proofs.';
-      } else if (lower.includes('p0') || lower.includes('alert') || lower.includes('patient')) {
-        reply += 'P0 alert recorded: node MCXN-001 (Ward A). Strictly adhering to privacy rules: clinical details remain encrypted on-device. "Decision support, not a diagnosis".';
-      } else {
-        reply += `Acknowledged query: "${query}". All operational systems normal. Nearest free ambulance is AMB-1081. "Decision support, not a diagnosis".`;
-      }
+    if (lower.includes('link') || lower.includes('route') || lower.includes('path')) {
+      reply += 'Link state is HEALTHY on PORT_A Wi-Fi. PDR is 96.8%, RSSI -62 dBm. Next fallback is PORT_B then MESH nRF24.';
+    } else if (lower.includes('ambulance') || lower.includes('free') || lower.includes('dispatch')) {
+      reply += 'There are currently 2 ambulances FREE: AMB-1081 (KR Market, 1.2 km away) and AMB-1082 (Chamrajpet, 1.8 km away).';
+    } else if (lower.includes('hospital') || lower.includes('bed') || lower.includes('icu')) {
+      reply += 'Victoria Hospital has 18 beds and 4 ICU beds free. Manipal HAL has 32 beds and 11 ICU beds free.';
+    } else if (lower.includes('audit') || lower.includes('chain') || lower.includes('tamper')) {
+      reply += 'Hub HMAC/SHA-256 audit chain is valid. All events up to sequence #2 are cryptographic proofs.';
+    } else if (lower.includes('p0') || lower.includes('alert') || lower.includes('patient')) {
+      reply += 'P0 alert recorded: node MCXN-001 (Ward A). Strictly adhering to privacy rules: clinical details remain encrypted on-device. "Decision support, not a diagnosis".';
+    } else {
+      reply += `Acknowledged query: "${query}". All operational systems normal. Nearest free ambulance is AMB-1081. "Decision support, not a diagnosis".`;
+    }
 
+    try {
+      const translatedReply = await translateWithSarvam(reply, selectedLang);
+      setMessages(prev => [...prev, {
+        sender: 'groot',
+        text: translatedReply,
+        ts: Date.now()
+      }]);
+    } catch (err) {
       setMessages(prev => [...prev, {
         sender: 'groot',
         text: reply,
         ts: Date.now()
       }]);
-    }, 400);
+    } finally {
+      setTranslating(false);
+    }
   };
 
   const handleToggleVoice = () => {
@@ -105,7 +119,7 @@ export const GrootHubDrawer: React.FC<GrootHubDrawerProps> = ({ isOpen, onClose 
     }}>
       {/* Header */}
       <div style={{
-        padding: '16px',
+        padding: '14px 16px',
         borderBottom: '1px solid #374151',
         display: 'flex',
         justifyContent: 'space-between',
@@ -115,13 +129,32 @@ export const GrootHubDrawer: React.FC<GrootHubDrawerProps> = ({ isOpen, onClose 
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <Bot size={20} color="#38bdf8" />
           <div>
-            <strong style={{ fontSize: '15px' }}>Hub Groot (Voice & Chat)</strong>
-            <div style={{ fontSize: '11px', color: '#9ca3af' }}>Aggregates Only • Advisory</div>
+            <strong style={{ fontSize: '14px' }}>Hub Groot (Sarvam AI)</strong>
+            <div style={{ fontSize: '11px', color: '#9ca3af' }}>Multilingual Operational Advisor</div>
           </div>
         </div>
-        <button onClick={onClose} style={{ background: 'none', color: '#9ca3af', fontSize: '18px' }}>
-          <X size={18} />
-        </button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <select
+            value={selectedLang}
+            onChange={(e) => setSelectedLang(e.target.value)}
+            style={{
+              backgroundColor: '#111827',
+              color: '#f8fafc',
+              border: '1px solid #475569',
+              borderRadius: '4px',
+              padding: '3px 6px',
+              fontSize: '11px',
+              outline: 'none'
+            }}
+          >
+            {SUPPORTED_LANGUAGES.map(l => (
+              <option key={l.code} value={l.code}>{l.nativeName}</option>
+            ))}
+          </select>
+          <button onClick={onClose} style={{ background: 'none', color: '#9ca3af', fontSize: '18px' }}>
+            <X size={18} />
+          </button>
+        </div>
       </div>
 
       {/* Strict Privacy Principle Notice */}
