@@ -1,0 +1,1317 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "RESILINK GRID Hub Backend",
+    "description": "Offline-first, end-to-end encrypted medical communication hub. Ingests ciphertext only. Built by Harshith.",
+    "version": "4.0.0"
+  },
+  "paths": {
+    "/v1/ingest/envelope": {
+      "post": {
+        "tags": [
+          "Ingest"
+        ],
+        "summary": "Post Envelope",
+        "description": "Ingests an encrypted envelope from Node B (Hub Gateway Node) or network client.\nStrict Ingest Order: Length -> Version -> Expiry -> Replay -> Signature -> Store.",
+        "operationId": "post_envelope_v1_ingest_envelope_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/EnvelopeJSONRequest"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Body"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/facilities/hospitals": {
+      "get": {
+        "tags": [
+          "Facilities"
+        ],
+        "summary": "List Hospitals",
+        "description": "Returns hospitals with free beds, ICU, O2, ventilators, and stale badges.",
+        "operationId": "list_hospitals_v1_facilities_hospitals_get",
+        "parameters": [
+          {
+            "name": "lat",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Center latitude for radius query",
+              "title": "Lat"
+            },
+            "description": "Center latitude for radius query"
+          },
+          {
+            "name": "lon",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Center longitude for radius query",
+              "title": "Lon"
+            },
+            "description": "Center longitude for radius query"
+          },
+          {
+            "name": "radius_km",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Search radius in kilometers",
+              "title": "Radius Km"
+            },
+            "description": "Search radius in kilometers"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/facilities/pharmacies": {
+      "get": {
+        "tags": [
+          "Facilities"
+        ],
+        "summary": "List Pharmacies",
+        "description": "Returns pharmacies with inventory, flagging rare drugs and expired/near-expiry (<30 days) medications.",
+        "operationId": "list_pharmacies_v1_facilities_pharmacies_get",
+        "parameters": [
+          {
+            "name": "lat",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Center latitude",
+              "title": "Lat"
+            },
+            "description": "Center latitude"
+          },
+          {
+            "name": "lon",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Center longitude",
+              "title": "Lon"
+            },
+            "description": "Center longitude"
+          },
+          {
+            "name": "radius_km",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Search radius in kilometers",
+              "title": "Radius Km"
+            },
+            "description": "Search radius in kilometers"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/facilities/bloodbanks": {
+      "get": {
+        "tags": [
+          "Facilities"
+        ],
+        "summary": "List Bloodbanks",
+        "description": "Returns blood banks with available units per blood group (A+, A-, B+, B-, AB+, AB-, O+, O-).",
+        "operationId": "list_bloodbanks_v1_facilities_bloodbanks_get",
+        "parameters": [
+          {
+            "name": "lat",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Center latitude",
+              "title": "Lat"
+            },
+            "description": "Center latitude"
+          },
+          {
+            "name": "lon",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Center longitude",
+              "title": "Lon"
+            },
+            "description": "Center longitude"
+          },
+          {
+            "name": "radius_km",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Search radius in kilometers",
+              "title": "Radius Km"
+            },
+            "description": "Search radius in kilometers"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/facilities/ambulances": {
+      "get": {
+        "tags": [
+          "Facilities"
+        ],
+        "summary": "List Ambulances",
+        "description": "Returns ambulances with real-time or cached status, contact, and distance.",
+        "operationId": "list_ambulances_v1_facilities_ambulances_get",
+        "parameters": [
+          {
+            "name": "lat",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Center latitude",
+              "title": "Lat"
+            },
+            "description": "Center latitude"
+          },
+          {
+            "name": "lon",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Center longitude",
+              "title": "Lon"
+            },
+            "description": "Center longitude"
+          },
+          {
+            "name": "radius_km",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Search radius in kilometers",
+              "title": "Radius Km"
+            },
+            "description": "Search radius in kilometers"
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Status filter: FREE or BUSY",
+              "title": "Status"
+            },
+            "description": "Status filter: FREE or BUSY"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/emergency/trigger": {
+      "post": {
+        "tags": [
+          "Emergency"
+        ],
+        "summary": "Post Emergency Trigger",
+        "description": "Triggers deterministic offline emergency allocation:\nPicks nearest FREE ambulance, scores best hospital (distance + capability + beds - stale penalty),\nqueues multi-path dispatch, enforces idempotency, and logs every audit step.",
+        "operationId": "post_emergency_trigger_v1_emergency_trigger_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EmergencyTriggerRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/emergency/{id}": {
+      "get": {
+        "tags": [
+          "Emergency"
+        ],
+        "summary": "Get Emergency",
+        "description": "Returns active emergency status, assigned ambulance, and allocated hospital.",
+        "operationId": "get_emergency_v1_emergency__id__get",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Emergency ID",
+              "title": "Id"
+            },
+            "description": "Emergency ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/emergency/{id}/override": {
+      "post": {
+        "tags": [
+          "Emergency"
+        ],
+        "summary": "Post Emergency Override",
+        "description": "Applies human operator override to emergency assignment or status.",
+        "operationId": "post_emergency_override_v1_emergency__id__override_post",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/HumanOverrideRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/snapshots/request": {
+      "post": {
+        "tags": [
+          "Snapshots"
+        ],
+        "summary": "Request Snapshot",
+        "description": "Relays signed snapshot request to device, stores ciphertext, and audits request.",
+        "operationId": "request_snapshot_v1_snapshots_request_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SnapshotRequestModel"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/triage/queue": {
+      "get": {
+        "tags": [
+          "Triage"
+        ],
+        "summary": "List Triage Queue",
+        "description": "Returns metadata-only triage queue ordered by SOS (P0), coarse priority, device, and arrival time.",
+        "operationId": "list_triage_queue_v1_triage_queue_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/triage/formula": {
+      "get": {
+        "tags": [
+          "Triage"
+        ],
+        "summary": "Get Formula",
+        "description": "Returns the published fine ranking formula and weights for Harshavardhan (Doctor Client).",
+        "operationId": "get_formula_v1_triage_formula_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/consult/session": {
+      "post": {
+        "tags": [
+          "Consultation"
+        ],
+        "summary": "Create Consult Session",
+        "description": "Initializes consultation signalling session or offline store-and-forward queue.",
+        "operationId": "create_consult_session_v1_consult_session_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConsultSessionCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/consult/session/{id}": {
+      "get": {
+        "tags": [
+          "Consultation"
+        ],
+        "summary": "Get Consult Session",
+        "description": "Retrieves consultation session metadata.",
+        "operationId": "get_consult_session_v1_consult_session__id__get",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/groot/status": {
+      "get": {
+        "tags": [
+          "Groot"
+        ],
+        "summary": "Get Groot Status",
+        "description": "Returns Groot health, wake word status, latency baseline, and disclaimer.",
+        "operationId": "get_groot_status_v1_groot_status_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/groot/query": {
+      "post": {
+        "tags": [
+          "Groot"
+        ],
+        "summary": "Post Groot Query",
+        "description": "Processes text query through intent router or knowledge retriever with audit logging.",
+        "operationId": "post_groot_query_v1_groot_query_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GrootTextQueryRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/groot/voice": {
+      "post": {
+        "tags": [
+          "Groot"
+        ],
+        "summary": "Post Groot Voice",
+        "description": "Accepts raw audio bytes from push-to-talk microphone, processes STT and returns answer.",
+        "operationId": "post_groot_voice_v1_groot_voice_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/audit/verify": {
+      "get": {
+        "tags": [
+          "Audit"
+        ],
+        "summary": "Get Audit Verification",
+        "description": "Verifies the entire HMAC-SHA256 hash chain from genesis to tip.\nReturns valid: true or names first bad sequence number.",
+        "operationId": "get_audit_verification_v1_audit_verify_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/audit/checkpoints": {
+      "get": {
+        "tags": [
+          "Audit"
+        ],
+        "summary": "List Audit Checkpoints",
+        "description": "Returns signed checkpoints created every 100 events / 10 minutes.",
+        "operationId": "list_audit_checkpoints_v1_audit_checkpoints_get",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "default": 20,
+              "title": "Limit"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/audit/events": {
+      "get": {
+        "tags": [
+          "Audit"
+        ],
+        "summary": "List Audit Events",
+        "description": "Returns audit log records.",
+        "operationId": "list_audit_events_v1_audit_events_get",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 200,
+              "minimum": 1,
+              "default": 50,
+              "title": "Limit"
+            }
+          },
+          {
+            "name": "event_type",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "Event Type"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/audit/tamper-demo": {
+      "post": {
+        "tags": [
+          "Audit"
+        ],
+        "summary": "Trigger Tamper Demo",
+        "description": "Demonstration utility: intentionally corrupts an audit event in SQLite\nto prove that /v1/audit/verify instantly catches the tampering and names the exact sequence.",
+        "operationId": "trigger_tamper_demo_v1_audit_tamper_demo_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TamperDemoRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/": {
+      "get": {
+        "summary": "Root",
+        "operationId": "root__get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/health": {
+      "get": {
+        "summary": "Health Check",
+        "operationId": "health_check_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ConsultSessionCreate": {
+        "properties": {
+          "patient_pseudonym": {
+            "type": "string",
+            "title": "Patient Pseudonym",
+            "description": "Patient pseudonym"
+          },
+          "doctor_id": {
+            "type": "string",
+            "title": "Doctor Id",
+            "description": "Target doctor ID"
+          },
+          "signaling_data": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Signaling Data",
+            "description": "WebRTC SDP offer or offline encrypted note bundle"
+          }
+        },
+        "type": "object",
+        "required": [
+          "patient_pseudonym",
+          "doctor_id"
+        ],
+        "title": "ConsultSessionCreate"
+      },
+      "EmergencyTriggerRequest": {
+        "properties": {
+          "pseudonym": {
+            "type": "string",
+            "title": "Pseudonym",
+            "description": "Patient pseudonym (clinical details remain encrypted on-device)"
+          },
+          "lat": {
+            "type": "number",
+            "title": "Lat",
+            "description": "Patient GPS latitude"
+          },
+          "lon": {
+            "type": "number",
+            "title": "Lon",
+            "description": "Patient GPS longitude"
+          },
+          "ts": {
+            "type": "integer",
+            "title": "Ts",
+            "description": "Timestamp in seconds"
+          },
+          "class": {
+            "type": "string",
+            "title": "Class",
+            "description": "Priority class (must be P0 for emergency trigger)",
+            "default": "P0"
+          },
+          "need": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Need",
+            "description": "Specific resource needs: ICU, O2, BLOOD, VENTILATOR, GENERAL"
+          },
+          "device_id": {
+            "type": "string",
+            "title": "Device Id",
+            "description": "Originating NXP device ID"
+          },
+          "counter": {
+            "type": "integer",
+            "title": "Counter",
+            "description": "Monotonic sequence counter for replay defense and idempotency"
+          },
+          "signature_hex": {
+            "type": "string",
+            "title": "Signature Hex",
+            "description": "64-byte raw ECDSA signature hex over canonical trigger payload"
+          }
+        },
+        "type": "object",
+        "required": [
+          "pseudonym",
+          "lat",
+          "lon",
+          "ts",
+          "need",
+          "device_id",
+          "counter",
+          "signature_hex"
+        ],
+        "title": "EmergencyTriggerRequest"
+      },
+      "EnvelopeJSONRequest": {
+        "properties": {
+          "envelope_hex": {
+            "type": "string",
+            "title": "Envelope Hex",
+            "description": "Hex-encoded envelope wire format"
+          }
+        },
+        "type": "object",
+        "required": [
+          "envelope_hex"
+        ],
+        "title": "EnvelopeJSONRequest"
+      },
+      "GrootTextQueryRequest": {
+        "properties": {
+          "query": {
+            "type": "string",
+            "title": "Query",
+            "description": "Query for Groot intent router or knowledge base"
+          },
+          "source": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source",
+            "description": "Origin: chat, terminal, or voice",
+            "default": "chat"
+          }
+        },
+        "type": "object",
+        "required": [
+          "query"
+        ],
+        "title": "GrootTextQueryRequest"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "HumanOverrideRequest": {
+        "properties": {
+          "operator_id": {
+            "type": "string",
+            "title": "Operator Id",
+            "description": "ID of dispatch operator"
+          },
+          "new_status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "New Status",
+            "description": "New status: ASSIGNED, EN_ROUTE, ARRIVED, CANCELLED"
+          },
+          "new_ambulance_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "New Ambulance Id",
+            "description": "Reassigned ambulance ID"
+          },
+          "new_hospital_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "New Hospital Id",
+            "description": "Reassigned hospital ID"
+          },
+          "reason": {
+            "type": "string",
+            "title": "Reason",
+            "description": "Clinical or dispatch reason",
+            "default": "Manual operator override"
+          }
+        },
+        "type": "object",
+        "required": [
+          "operator_id"
+        ],
+        "title": "HumanOverrideRequest"
+      },
+      "SnapshotRequestModel": {
+        "properties": {
+          "doctor_id": {
+            "type": "string",
+            "title": "Doctor Id",
+            "description": "Authorized doctor ID"
+          },
+          "device_id": {
+            "type": "string",
+            "title": "Device Id",
+            "description": "Target patient/ward node ID"
+          },
+          "timestamp": {
+            "type": "integer",
+            "title": "Timestamp",
+            "description": "Request timestamp (seconds)"
+          },
+          "requested_keyframe_id": {
+            "type": "string",
+            "title": "Requested Keyframe Id",
+            "description": "Base keyframe ID or 'latest'",
+            "default": "latest"
+          },
+          "signature_hex": {
+            "type": "string",
+            "title": "Signature Hex",
+            "description": "64-byte raw ECDSA signature hex over SNAPSHOT_REQ payload"
+          },
+          "device_response_ciphertext_hex": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Device Response Ciphertext Hex",
+            "description": "Simulated device returned ciphertext"
+          },
+          "device_reports_no_base": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Device Reports No Base",
+            "description": "Flag simulating device NO_BASE condition",
+            "default": false
+          }
+        },
+        "type": "object",
+        "required": [
+          "doctor_id",
+          "device_id",
+          "timestamp",
+          "signature_hex"
+        ],
+        "title": "SnapshotRequestModel"
+      },
+      "TamperDemoRequest": {
+        "properties": {
+          "seq": {
+            "type": "integer",
+            "title": "Seq",
+            "description": "Audit sequence number to tamper with"
+          },
+          "new_event_type": {
+            "type": "string",
+            "title": "New Event Type",
+            "description": "Modified event type",
+            "default": "UNAUTHORIZED_MUTATION"
+          }
+        },
+        "type": "object",
+        "required": [
+          "seq"
+        ],
+        "title": "TamperDemoRequest"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      }
+    }
+  }
+}

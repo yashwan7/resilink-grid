@@ -1,0 +1,32 @@
+{
+  "mode": "implement",
+  "contract_version": "1.0",
+  "agent": "Harshith",
+  "objective": "Build RESILINK GRID Hub backend (/hub) with FastAPI, SQLite WAL, cryptographic ingest, replay protection, canonical JSON audit hash chain, deterministic offline emergency engine, facility services, Groot voice/chat gateway, and full test suite",
+  "allowed_write_scope": [
+    "hub/**",
+    ".gravitas/**"
+  ],
+  "acceptance_criteria": [
+    "Ingest order enforced: length -> version -> expiry -> replay -> signature -> store",
+    "NACK error codes implemented: BAD_LENGTH, BAD_VERSION, EXPIRED, REPLAY, BAD_SIGNATURE, UNKNOWN_DEVICE, REVOKED, UNKNOWN_EPOCH, NO_BASE",
+    "2048-bit sliding bitmap + unique index replay filter with TTL logic in SQLite WAL transaction",
+    "Isolated schemas for medical, operational, infrastructure, audit (never joined)",
+    "Audit hash chain with RFC 8785 canonical JSON, HMAC/SHA-256, signed checkpoints, and /v1/audit/verify pinpointing first bad seq",
+    "F4 metadata-only triage queue and documented fine ranking formula for doctor client",
+    "F3 signed snapshot request relay and NO_BASE keyframe handling",
+    "F5-F7 facility service with seeded Bangalore data, haversine query, near-expiry drug flagging (<30 days), and mutation simulator",
+    "F8 deterministic offline emergency allocation (nearest ambulance, weighted hospital scoring, fallback, multi-path dispatch, outbox retry, idempotency, state machine, human override)",
+    "Groot gateway with intent router over aggregates, strict zero-ciphertext/key isolation, safety disclaimer, GROOT_QUERY audit, and wake-to-answer latency measurement",
+    "Unit and integration test suite passing for T2-T9, T13, T15, T17, T18, and allocation edge cases",
+    "Deliverables: OpenAPI spec, seed data, run script (make run / run.py), demo script, and comprehensive README"
+  ],
+  "non_goals": [
+    "Do not decrypt patient ciphertext on hub (hub never holds keys or plaintext)",
+    "Do not touch /firmware, /ml, /radio (owned by Yashwanth)",
+    "Do not touch /web, /patient (owned by Harshavardhan)"
+  ],
+  "risk": "medium",
+  "budget": "balanced",
+  "verification": "impact"
+}
