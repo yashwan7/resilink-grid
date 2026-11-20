@@ -13,6 +13,9 @@ resilink_mcxn236
 build/
 dist/
 *.dSYM/
+node_modules/
+.vite/
+*.local
 
 # Python cache
 __pycache__/
@@ -33,5 +36,6 @@ venv/
 
 # IDE and OS
 .DS_Store
+Thumbs.db
 .vscode/
 .idea/
