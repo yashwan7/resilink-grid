@@ -1,0 +1,19 @@
+{
+  "name": "resilink-grid-frontend",
+  "version": "4.0.0",
+  "private": true,
+  "workspaces": [
+    "web",
+    "patient"
+  ],
+  "scripts": {
+    "dev": "concurrently -n \"web,patient\" -c \"cyan,magenta\" \"npm run dev --workspace=web\" \"npm run dev --workspace=patient\"",
+    "dev:web": "npm run dev --workspace=web",
+    "dev:patient": "npm run dev --workspace=patient",
+    "build": "npm run build --workspace=web && npm run build --workspace=patient",
+    "test": "npm run test --workspace=web && npm run test --workspace=patient"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.0"
+  }
+}

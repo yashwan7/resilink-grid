@@ -1,0 +1,15 @@
+{
+  "planning": "deep",
+  "context_depth": "dependency",
+  "verification_depth": "impact",
+  "delegation": "none",
+  "reason_codes": [
+    "prompt-2-harshith",
+    "hub-backend-fastapi",
+    "sqlite-wal-isolated-schemas",
+    "replay-protection-sliding-bitmap",
+    "audit-hmac-hash-chain",
+    "deterministic-offline-allocation",
+    "groot-intent-gateway"
+  ]
+}

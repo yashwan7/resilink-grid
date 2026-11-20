@@ -1,0 +1,32 @@
+{
+  "feature_order": [
+    "rssi_dbm",
+    "snr_db",
+    "packet_error_rate",
+    "retry_count",
+    "channel_busy_ratio",
+    "jitter_ms"
+  ],
+  "mean": [
+    -74.49451959470113,
+    10.782495682686461,
+    0.5729232734021653,
+    3.0141,
+    0.4416318007556256,
+    37.97689694852928
+  ],
+  "scale": [
+    16.11769659723882,
+    10.173037922063108,
+    0.2186177352149349,
+    1.3874200961972445,
+    0.17625811657929694,
+    28.312601177082104
+  ],
+  "formula": "standardized[i] = (raw[i] - mean[i]) / scale[i]",
+  "labels": {
+    "0": "NORMAL_RUN",
+    "1": "DEGRADING",
+    "2": "CRITICAL_FAILOVER"
+  }
+}

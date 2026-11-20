@@ -1,0 +1,20 @@
+# RESILINK GRID — Code Owners
+# Each line maps a path pattern to the responsible contributor.
+# GitHub uses this to auto-request reviews.
+
+# Hub backend — Harshith
+/hub/                   @harshithjayarama
+
+# Firmware, ML, Radio — Yashwanth
+/firmware/              @yashwan7
+/ml/                    @yashwan7
+/radio/                 @yashwan7
+
+# Doctor dashboard and patient app — Harshavardhan
+/web/                   @harshavardhan-h
+/patient/               @harshavardhan-h
+
+# Shared root docs — all reviewers
+/PACKET_SPEC.md         @harshithjayarama @yashwan7
+/CONTRIBUTING.md        @harshithjayarama
+/README.md              @harshithjayarama @yashwan7

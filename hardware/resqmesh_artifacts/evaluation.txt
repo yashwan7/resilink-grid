@@ -1,0 +1,16 @@
+Float model held-out test accuracy: 0.994300
+
+                   precision    recall  f1-score   support
+
+       NORMAL_RUN     0.9927    0.9731    0.9828      1265
+        DEGRADING     0.9936    0.9948    0.9942      9814
+CRITICAL_FAILOVER     0.9953    0.9967    0.9960      8921
+
+         accuracy                         0.9943     20000
+        macro avg     0.9939    0.9882    0.9910     20000
+     weighted avg     0.9943    0.9943    0.9943     20000
+
+Confusion matrix (true rows, predicted columns; labels 0,1,2):
+[[1231   34    0]
+ [   9 9763   42]
+ [   0   29 8892]]

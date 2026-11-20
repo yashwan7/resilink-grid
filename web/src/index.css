@@ -1,0 +1,218 @@
+@import "leaflet/dist/leaflet.css";
+
+:root {
+  --bg-main: #eef2f7;
+  --sidebar-grad-start: #14284b;
+  --sidebar-grad-mid: #1a3666;
+  --sidebar-grad-end: #204482;
+  --card-bg: #ffffff;
+  --text-primary: #0f172a;
+  --text-secondary: #334155;
+  --text-muted: #64748b;
+  
+  /* Medical Royal Blue & Cyan Accents */
+  --accent-blue: #2563eb;
+  --accent-blue-dark: #1d4ed8;
+  --accent-cyan: #0284c7;
+  --accent-light-blue: #eff6ff;
+  
+  /* Alerts */
+  --accent-red: #ef4444;
+  --accent-red-bg: #fef2f2;
+  --accent-red-border: #fecaca;
+  
+  --border-main: #e2e8f0;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--bg-main);
+  color: var(--text-primary);
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ================= RESQMESH TACTICAL CLINICAL SURFACES ================= */
+
+/* Elevated Clean White Clinical Panel */
+.nm-flat {
+  background: #ffffff !important;
+  box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.06), 0 1px 3px 0 rgba(0, 0, 0, 0.02) !important;
+  border: 1px solid rgba(226, 232, 240, 0.9) !important;
+  border-radius: 16px;
+}
+
+/* Subtle Convex Surface */
+.nm-convex {
+  background: linear-gradient(145deg, #ffffff, #f8fafc) !important;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.05) !important;
+  border: 1px solid rgba(226, 232, 240, 0.9) !important;
+  border-radius: 14px;
+}
+
+/* Subtle Concave Surface */
+.nm-concave {
+  background: linear-gradient(145deg, #f8fafc, #ffffff) !important;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.05) !important;
+  border: 1px solid rgba(226, 232, 240, 0.9) !important;
+  border-radius: 14px;
+}
+
+/* Inset / Debossed Sunken Well (For Inputs, Stats Wells, Active Tabs) */
+.nm-inset {
+  background: #f1f5f9 !important;
+  box-shadow: inset 0 2px 4px rgba(15, 23, 42, 0.04) !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 12px;
+}
+
+/* Tactile Interactive Button */
+.nm-btn {
+  background: #ffffff !important;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.06) !important;
+  border: 1px solid #e2e8f0 !important;
+  color: #1e293b !important;
+  border-radius: 12px;
+  transition: all 0.15s ease;
+  cursor: pointer;
+}
+
+.nm-btn:hover {
+  background: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+  color: #2563eb !important;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.12) !important;
+}
+
+.nm-btn:active, .nm-btn-pressed {
+  background: #f1f5f9 !important;
+  box-shadow: inset 0 2px 4px rgba(15, 23, 42, 0.08) !important;
+  transform: scale(0.985);
+}
+
+/* Primary Medical Blue Accent Button */
+.nm-btn-accent {
+  background: linear-gradient(135deg, #2563eb, #1d4ed8) !important;
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35) !important;
+  border: 1px solid #1d4ed8 !important;
+  color: #ffffff !important;
+  border-radius: 12px;
+  font-weight: 700;
+  transition: all 0.15s ease;
+  cursor: pointer;
+}
+
+.nm-btn-accent:hover {
+  background: linear-gradient(135deg, #1d4ed8, #1e40af) !important;
+  box-shadow: 0 6px 18px rgba(37, 99, 235, 0.45) !important;
+}
+
+.nm-btn-accent:active {
+  background: #1e40af !important;
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.2) !important;
+  transform: scale(0.985);
+}
+
+/* Embossed Tactile Badge / Pill */
+.nm-badge {
+  background: #eff6ff !important;
+  box-shadow: 0 1px 3px rgba(37, 99, 235, 0.08) !important;
+  border: 1px solid #bfdbfe !important;
+  color: #1d4ed8 !important;
+  border-radius: 9999px;
+  padding: 2px 8px;
+  font-size: 11px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Inset Critical Alert / Status Well */
+.nm-alert-inset {
+  background: #fef2f2 !important;
+  box-shadow: inset 0 2px 4px rgba(239, 68, 68, 0.06) !important;
+  border: 1px solid #fecaca !important;
+  color: #b91c1c !important;
+  border-radius: 12px;
+}
+
+/* Stale Warning Badge */
+.stale-badge {
+  background-color: #fef2f2;
+  color: #b91c1c;
+  border: 1px solid #fecaca;
+  padding: 2px 6px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Animations */
+@keyframes soft-pulse {
+  0% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.04); opacity: 0.88; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.clinical-pulse {
+  animation: soft-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse-critical {
+  0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+  70% { transform: scale(1.04); box-shadow: 0 0 0 8px rgba(239, 68, 68, 0); }
+  100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+}
+
+.animate-pulse-critical {
+  animation: pulse-critical 1.5s infinite;
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #2563eb;
+}
+
+/* Leaflet Clean Light Medical Map in Blue & White */
+.leaflet-container {
+  background-color: #f1f5f9 !important;
+  font-family: inherit !important;
+  border-radius: 16px !important;
+  z-index: 10;
+}
+
+.leaflet-popup-content-wrapper {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 12px !important;
+  box-shadow: 0 12px 30px -4px rgba(15, 23, 42, 0.12) !important;
+}
+
+.leaflet-popup-tip {
+  background: #ffffff !important;
+}
