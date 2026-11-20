@@ -4,10 +4,13 @@ import {
   Send, 
   Mic, 
   ShieldCheck, 
-  AlertCircle 
+  AlertCircle,
+  Globe,
+  Sparkles
 } from 'lucide-react';
 import { VitalsSample, RiskScore } from '../types';
 import { answerPatientGrootQuery } from '../groot/patientGroot';
+import { SUPPORTED_LANGUAGES, translateWithSarvam } from '../services/sarvamAi';
 
 interface PatientGrootChatProps {
   vitals: VitalsSample;
@@ -15,6 +18,7 @@ interface PatientGrootChatProps {
 }
 
 export const PatientGrootChat: React.FC<PatientGrootChatProps> = ({ vitals, risk }) => {
+  const [selectedLang, setSelectedLang] = useState<string>('hi-IN');
   const [messages, setMessages] = useState<{
     sender: 'user' | 'groot';
     text: string;
@@ -22,14 +26,15 @@ export const PatientGrootChat: React.FC<PatientGrootChatProps> = ({ vitals, risk
   }[]>([
     {
       sender: 'groot',
-      text: 'Hello, I am Groot, your on-device health companion. I explain your live vitals in simple terms and offer safe, non-diagnostic guidance. "Decision support, not a diagnosis". How are you feeling?',
+      text: 'नमस्ते, मैं ग्रूट हूँ, आपका बहुभाषी स्वास्थ्य साथी (Powered by Sarvam AI)। मैं आपके वाइटल्स को सरल भाषा में समझाता हूँ। "निर्णय सहायता, निदान नहीं"। आप कैसा महसूस कर रहे हैं?',
       ts: Date.now() - 30000
     }
   ]);
   const [inputText, setInputText] = useState('');
   const [isListening, setIsListening] = useState(false);
+  const [translating, setTranslating] = useState(false);
 
-  const handleSend = (textToSend?: string) => {
+  const handleSend = async (textToSend?: string) => {
     const query = (textToSend || inputText).trim();
     if (!query) return;
 
@@ -37,15 +42,24 @@ export const PatientGrootChat: React.FC<PatientGrootChatProps> = ({ vitals, risk
     setMessages(prev => [...prev, userMsg]);
     setInputText('');
 
-    // Local Guardrailed Response Synthesis
-    setTimeout(() => {
-      const answer = answerPatientGrootQuery(query, vitals, risk);
+    setTranslating(true);
+    try {
+      // 1. Get clinical guardrailed response from local Groot logic
+      const rawAnswer = answerPatientGrootQuery(query, vitals, risk);
+
+      // 2. Translate response to selected Indian language via Sarvam AI
+      const translatedAnswer = await translateWithSarvam(rawAnswer, selectedLang);
+
       setMessages(prev => [...prev, {
         sender: 'groot',
-        text: answer,
+        text: translatedAnswer,
         ts: Date.now()
       }]);
-    }, 300);
+    } catch (err) {
+      console.error("Groot response error:", err);
+    } finally {
+      setTranslating(false);
+    }
   };
 
   const handleVoicePush = () => {
@@ -53,38 +67,91 @@ export const PatientGrootChat: React.FC<PatientGrootChatProps> = ({ vitals, risk
       setIsListening(true);
       setTimeout(() => {
         setIsListening(false);
-        handleSend("Why is my heart rate elevated and what should I do?");
+        handleSend(selectedLang === 'hi-IN' ? "मेरी हृदय गति क्यों बढ़ी हुई है?" : "Why is my heart rate elevated and what should I do?");
       }, 2000);
     } else {
       setIsListening(false);
     }
   };
 
+  const activeLangObj = SUPPORTED_LANGUAGES.find(l => l.code === selectedLang) || SUPPORTED_LANGUAGES[0];
+
   return (
     <div style={{ padding: '24px', maxWidth: '800px', margin: '0 auto' }}>
+      {/* Header & Language Selector */}
       <div style={{
         display: 'flex',
+        justifyContent: 'space-between',
         alignItems: 'center',
-        gap: '10px',
+        flexWrap: 'wrap',
+        gap: '12px',
         marginBottom: '16px'
       }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <div style={{
+            width: '38px',
+            height: '38px',
+            borderRadius: '8px',
+            backgroundColor: '#0284c7',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: '#fff'
+          }}>
+            <Bot size={22} />
+          </div>
+          <div>
+            <h2 style={{ fontSize: '20px', fontWeight: 'bold' }}>Groot Multilingual AI Chatbot</h2>
+            <div style={{ fontSize: '12px', color: '#94a3b8' }}>
+              Sarvam AI Multilingual Engine • Indian Languages • Privacy Guardrails
+            </div>
+          </div>
+        </div>
+
+        {/* Language Picker Dropdown */}
         <div style={{
-          width: '36px',
-          height: '36px',
-          borderRadius: '8px',
-          backgroundColor: '#0284c7',
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'center',
-          color: '#fff'
+          gap: '8px',
+          backgroundColor: '#0f172a',
+          padding: '4px 10px',
+          borderRadius: '8px',
+          border: '1px solid #334155'
         }}>
-          <Bot size={22} />
-        </div>
-        <div>
-          <h2 style={{ fontSize: '20px', fontWeight: 'bold' }}>Local Patient Groot AI</h2>
-          <div style={{ fontSize: '12px', color: '#94a3b8' }}>
-            On-Device Privacy Sandbox • Strict Non-Diagnostic Guardrails
-          </div>
+          <Globe size={15} color="#38bdf8" />
+          <span style={{ fontSize: '11px', color: '#94a3b8' }}>Language:</span>
+          <select
+            value={selectedLang}
+            onChange={(e) => {
+              const newLang = e.target.value;
+              setSelectedLang(newLang);
+              const langObj = SUPPORTED_LANGUAGES.find(l => l.code === newLang);
+              if (langObj) {
+                setMessages(prev => [...prev, {
+                  sender: 'groot',
+                  text: `${langObj.greeting}! I will now converse with you in ${langObj.name} (${langObj.nativeName}). Powered by Sarvam AI. "Decision support, not a diagnosis".`,
+                  ts: Date.now()
+                }]);
+              }
+            }}
+            style={{
+              backgroundColor: '#1e293b',
+              color: '#f8fafc',
+              border: '1px solid #475569',
+              borderRadius: '4px',
+              padding: '4px 8px',
+              fontSize: '12px',
+              fontWeight: 600,
+              outline: 'none',
+              cursor: 'pointer'
+            }}
+          >
+            {SUPPORTED_LANGUAGES.map(l => (
+              <option key={l.code} value={l.code}>
+                {l.nativeName} ({l.name})
+              </option>
+            ))}
+          </select>
         </div>
       </div>
 
@@ -96,9 +163,19 @@ export const PatientGrootChat: React.FC<PatientGrootChatProps> = ({ vitals, risk
         borderRadius: '4px',
         fontSize: '12px',
         color: '#6ee7b7',
-        marginBottom: '16px'
+        marginBottom: '16px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        flexWrap: 'wrap',
+        gap: '6px'
       }}>
-        🛡️ <strong>Zero-Leak Guarantee:</strong> This conversation and your decrypted vitals are processed locally on your phone/browser. No plaintext is ever transmitted to the hub or external servers.
+        <span>
+          🛡️ <strong>Clinical Privacy Sandbox:</strong> Decrypted physiological vitals remain on your device. Multilingual translation is powered by Sarvam AI.
+        </span>
+        <span style={{ color: '#38bdf8', fontSize: '11px', fontWeight: 'bold' }}>
+          Sarvam AI Active
+        </span>
       </div>
 
       {/* Chat Area */}
@@ -132,6 +209,11 @@ export const PatientGrootChat: React.FC<PatientGrootChatProps> = ({ vitals, risk
               </div>
             </div>
           ))}
+          {translating && (
+            <div style={{ alignSelf: 'flex-start', color: '#38bdf8', fontSize: '12px', fontStyle: 'italic' }}>
+              Groot is translating via Sarvam AI in {activeLangObj.nativeName}...
+            </div>
+          )}
         </div>
 
         {/* Quick Suggestion Pills */}
@@ -140,7 +222,7 @@ export const PatientGrootChat: React.FC<PatientGrootChatProps> = ({ vitals, risk
             onClick={() => handleSend("Explain my current SpO2 level")}
             style={{ backgroundColor: '#1e293b', color: '#38bdf8', padding: '4px 10px', borderRadius: '4px', fontSize: '11px', whiteSpace: 'nowrap' }}
           >
-            Explain my SpO2
+            Explain SpO2
           </button>
           <button
             onClick={() => handleSend("What should I do if my heart rate is high?")}
@@ -176,7 +258,7 @@ export const PatientGrootChat: React.FC<PatientGrootChatProps> = ({ vitals, risk
 
           <input
             type="text"
-            placeholder="Ask Groot about your health readings..."
+            placeholder={`Ask Groot in ${activeLangObj.nativeName} or English...`}
             value={inputText}
             onChange={(e) => setInputText(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleSend()}
@@ -194,6 +276,7 @@ export const PatientGrootChat: React.FC<PatientGrootChatProps> = ({ vitals, risk
 
           <button
             onClick={() => handleSend()}
+            disabled={translating}
             style={{
               backgroundColor: '#0284c7',
               color: '#fff',

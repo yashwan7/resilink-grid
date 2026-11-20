@@ -65,12 +65,31 @@ When the TinyML risk engine detects a `CRITICAL` or `HIGH` physiological state (
 
 ---
 
-## 4. Local Patient Groot AI & Safety Guardrails
+## 4. Local Patient Groot AI & Multilingual Sarvam AI Engine
 
-Patient Groot provides on-device natural language synthesis and explanations of decrypted vitals.
+Patient Groot provides on-device natural language synthesis and explanations of decrypted vitals, powered by the **Sarvam AI Multilingual Engine** supporting Indian languages (Hindi, Telugu, Tamil, Kannada, Malayalam, Marathi, Bengali, Gujarati, English).
+
+### Supported Languages:
+- **English** (`en-IN`)
+- **हिन्दी - Hindi** (`hi-IN`)
+- **తెలుగు - Telugu** (`te-IN`)
+- **தமிழ் - Tamil** (`ta-IN`)
+- **ಕನ್ನಡ - Kannada** (`kn-IN`)
+- **മലയാളം - Malayalam** (`ml-IN`)
+- **मराठी - Marathi** (`mr-IN`)
+- **বাংলা - Bengali** (`bn-IN`)
+- **ગુજરાતી - Gujarati** (`gu-IN`)
+
+### Multilingual Medical Report Download Flow:
+1. Tap **"Download AI Report in Your Language (Sarvam AI)"** in the My Vitals tab.
+2. A language selector modal appears with native scripts.
+3. Select your desired language (e.g. हिन्दी, తెలుగు, தமிழ், ಕನ್ನಡ).
+4. The Sarvam AI engine translates the vital signs telemetry, risk factors, Groot clinical analysis, and safe recommendations into that language.
+5. The formatted clinical report is downloaded directly as a text/printable file (`RESILINK_Report_<PatientID>_<Lang>_<Timestamp>.txt`).
+6. **API Key Configuration:** Users can paste their `api-subscription-key` from `api.sarvam.ai` in the modal or in `.env` as `VITE_SARVAM_API_KEY`. An offline medical translation dictionary is bundled to guarantee 100% offline functionality.
 
 ### Mandatory Clinical Guardrails:
-1. **"Decision support, not a diagnosis"** displayed prominently on every report and response.
+1. **"Decision support, not a diagnosis"** displayed prominently on every report and response in the selected language.
 2. **Strict Refusal of Medication Dosing:** Groot refuses any inquiry regarding drug dosages, directing the user to consultation or emergency services.
 3. **Strict Refusal of Definitive Diagnosis:** Groot explains physiological factor deviations (e.g., hypoxia, tachycardia) without making clinical claims.
 4. **Emergency Hotline Display:** Prominently presents emergency contact numbers (`108 / 112`).

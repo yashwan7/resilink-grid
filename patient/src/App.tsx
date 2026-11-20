@@ -4,6 +4,7 @@ import { PatientVitalsView } from './components/PatientVitalsView';
 import { PatientConsultView } from './components/PatientConsultView';
 import { PatientGrootChat } from './components/PatientGrootChat';
 import { EmergencyAlertModal } from './components/EmergencyAlertModal';
+import { DownloadReportModal } from './components/DownloadReportModal';
 import { VitalsSample, RiskScore, RiskClass, EmergencyStatus } from './types';
 import { generateMomentReport } from './groot/patientGroot';
 import { AlarmService } from './audio/siren';
@@ -34,6 +35,7 @@ export const App: React.FC = () => {
   // Emergency Alert Modal & Alarm State
   const [alertModalOpen, setAlertModalOpen] = useState(false);
   const [emergencyStatus, setEmergencyStatus] = useState<EmergencyStatus | null>(null);
+  const [downloadModalOpen, setDownloadModalOpen] = useState(false);
 
   // Initialize Patient WebCrypto keys
   useEffect(() => {
@@ -167,6 +169,7 @@ export const App: React.FC = () => {
             aiReport={aiReport}
             onSimulateScenario={handleSimulateScenario}
             currentScenario={currentScenario}
+            onOpenDownloadModal={() => setDownloadModalOpen(true)}
           />
         )}
         {currentTab === 'consult' && <PatientConsultView isOnline={isOnline} />}
@@ -180,6 +183,15 @@ export const App: React.FC = () => {
         onTriggerSos={handleTriggerSos}
         status={emergencyStatus}
         riskScore={risk.score}
+      />
+
+      {/* Sarvam AI Multilingual Report Download Modal */}
+      <DownloadReportModal
+        isOpen={downloadModalOpen}
+        onClose={() => setDownloadModalOpen(false)}
+        vitals={vitals}
+        risk={risk}
+        aiReport={aiReport}
       />
     </div>
   );

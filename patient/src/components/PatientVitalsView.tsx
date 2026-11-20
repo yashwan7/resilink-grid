@@ -6,9 +6,11 @@ import {
   Zap, 
   Bot, 
   ShieldCheck, 
-  AlertTriangle,
-  Activity,
-  CheckCircle2
+  AlertTriangle, 
+  Activity, 
+  CheckCircle2,
+  Globe,
+  Download
 } from 'lucide-react';
 import { VitalsSample, RiskScore, RiskClass } from '../types';
 import { GrootAIReport } from '../groot/patientGroot';
@@ -19,6 +21,7 @@ interface PatientVitalsViewProps {
   aiReport: GrootAIReport;
   onSimulateScenario: (scenario: 'NORMAL' | 'TACHYCARDIA' | 'HYPOXIA' | 'SEPSIS') => void;
   currentScenario: string;
+  onOpenDownloadModal: () => void;
 }
 
 export const PatientVitalsView: React.FC<PatientVitalsViewProps> = ({
@@ -26,7 +29,8 @@ export const PatientVitalsView: React.FC<PatientVitalsViewProps> = ({
   risk,
   aiReport,
   onSimulateScenario,
-  currentScenario
+  currentScenario,
+  onOpenDownloadModal
 }) => {
   const getRiskClassColor = (rc: RiskClass) => {
     switch (rc) {
@@ -264,6 +268,33 @@ export const PatientVitalsView: React.FC<PatientVitalsViewProps> = ({
               </div>
             ))}
           </div>
+        </div>
+
+        {/* Sarvam AI Multilingual Download Action */}
+        <div style={{
+          marginTop: '16px',
+          marginBottom: '14px',
+          display: 'flex',
+          justifyContent: 'flex-end'
+        }}>
+          <button
+            onClick={onOpenDownloadModal}
+            style={{
+              backgroundColor: '#0284c7',
+              color: '#fff',
+              padding: '10px 18px',
+              borderRadius: '8px',
+              fontSize: '13px',
+              fontWeight: 'bold',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              boxShadow: '0 4px 12px rgba(2, 132, 199, 0.3)'
+            }}
+          >
+            <Globe size={16} />
+            Download AI Report in Your Language (Sarvam AI)
+          </button>
         </div>
 
         {/* Regulatory Guardrail Footer */}
