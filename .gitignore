@@ -1,3 +1,19 @@
+# Binaries and object files
+resilink_mcxn236
+*.o
+*.obj
+*.so
+*.dylib
+*.a
+*.bin
+*.elf
+*.hex
+
+# Build directories
+build/
+dist/
+*.dSYM/
+
 # Python cache
 __pycache__/
 *.py[cod]
@@ -14,3 +30,8 @@ hub/.pytest_cache/
 .venv/
 env/
 venv/
+
+# IDE and OS
+.DS_Store
+.vscode/
+.idea/

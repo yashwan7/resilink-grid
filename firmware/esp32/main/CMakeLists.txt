@@ -1,0 +1,12 @@
+idf_component_register(
+    SRCS
+        "main.c"
+        "uart_bridge.c"
+        "wifi_manager.c"
+        "priority_queue.c"
+        "oled_display.c"
+    INCLUDE_DIRS
+        "."
+        "../../mcxn236/include"
+        "../../../radio/include"
+)

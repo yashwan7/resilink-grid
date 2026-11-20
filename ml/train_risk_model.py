@@ -1,0 +1,190 @@
+"""
+RESILINK GRID v4 — Clinical Risk Model Trainer & Quantizer (Robust Scaled)
+Trains a TinyML classifier/regressor on 1s vitals + 10s rolling context.
+Outputs:
+  - Confusion matrix & classification report
+  - Critical sensitivity & specificity metrics
+  - INT8 Quantized weights for TFLite Micro / Pure C runtime
+  - Exports risk_model_data.h
+"""
+
+import os
+import numpy as np
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.neural_network import MLPClassifier
+from sklearn.metrics import confusion_matrix, classification_report, accuracy_score
+from data_generator import generate_physiological_cohort
+
+
+FEATURE_NAMES = [
+    "hr", "spo2", "temp", "resp",
+    "hr_mean10", "spo2_mean10", "temp_mean10", "resp_mean10",
+    "hr_slope10", "spo2_slope10", "temp_slope10", "resp_slope10"
+]
+
+CLASS_NAMES = ["LOW", "MED", "HIGH", "CRITICAL"]
+
+
+def train_and_evaluate_risk_model():
+    print("=================================================================")
+    print("RESILINK GRID v4 — Training TinyML Clinical Risk Classifier")
+    print("=================================================================")
+
+    # 1. Generate Dataset
+    print("[1/5] Generating multi-cohort physiological time series...")
+    df = generate_physiological_cohort(num_samples_per_scenario=3000, seed=42)
+    X = df[FEATURE_NAMES].values
+    y = df["target_class"].values
+
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=0.25, random_state=42, stratify=y
+    )
+
+    # Standard Scaling
+    scaler = StandardScaler()
+    X_train_scaled = scaler.fit_transform(X_train)
+    X_test_scaled = scaler.transform(X_test)
+
+    means = scaler.mean_
+    stds = scaler.scale_
+
+    # 2. Train Compact Neural Network (MLP)
+    print("[2/5] Training 2-layer Neural Network (12 -> 16 -> 8 -> 4)...")
+    model = MLPClassifier(
+        hidden_layer_sizes=(16, 8),
+        activation="relu",
+        solver="adam",
+        max_iter=400,
+        random_state=42,
+        learning_rate_init=0.005
+    )
+    model.fit(X_train_scaled, y_train)
+
+    # 3. Evaluate Model
+    y_pred = model.predict(X_test_scaled)
+    acc = accuracy_score(y_test, y_pred)
+    cm = confusion_matrix(y_test, y_pred)
+    cr = classification_report(y_test, y_pred, target_names=CLASS_NAMES, digits=4)
+
+    print("\n[3/5] Evaluation Results:")
+    print(f"      Overall Accuracy: {acc * 100:.2f}%\n")
+    print("--- Confusion Matrix ---")
+    print(f"{'':>10} {'Pred LOW':>10} {'Pred MED':>10} {'Pred HIGH':>10} {'Pred CRIT':>10}")
+    for i, row in enumerate(cm):
+        print(f"{'True ' + CLASS_NAMES[i]:>10} {row[0]:>10} {row[1]:>10} {row[2]:>10} {row[3]:>10}")
+    print("\n--- Classification Report ---")
+    print(cr)
+
+    crit_idx = 3
+    tp = cm[crit_idx, crit_idx]
+    fn = sum(cm[crit_idx, :]) - tp
+    fp = sum(cm[:, crit_idx]) - tp
+    tn = np.sum(cm) - (tp + fn + fp)
+
+    sensitivity = tp / (tp + fn) if (tp + fn) > 0 else 0
+    specificity = tn / (tn + fp) if (tn + fp) > 0 else 0
+
+    print(f"--- Critical (P0) Safety Metrics ---")
+    print(f"Critical Sensitivity (Recall): {sensitivity * 100:.2f}% (Safety Threshold: > 98%)")
+    print(f"Critical Specificity:          {specificity * 100:.2f}%\n")
+
+    # 4. INT8 Quantization
+    print("[4/5] Performing INT8 Symmetric Quantization...")
+    quantized_weights = []
+    weight_scales = []
+
+    for idx, (W, b) in enumerate(zip(model.coefs_, model.intercepts_)):
+        max_val = max(np.max(np.abs(W)), np.max(np.abs(b)))
+        scale = max_val / 127.0 if max_val > 0 else 1.0
+        W_int8 = np.clip(np.round(W / scale), -128, 127).astype(np.int8)
+        b_int32 = np.round(b / scale).astype(np.int32)
+        quantized_weights.append((W_int8, b_int32))
+        weight_scales.append(scale)
+        print(f"      Layer {idx}: W shape {W.shape}, Scale {scale:.6f}, Max INT8 {np.max(np.abs(W_int8))}")
+
+    arena_size_bytes = 16 * 1024
+    print(f"      Estimated TFLite Micro Tensor Arena: {arena_size_bytes} Bytes (16 KB)")
+    print(f"      Estimated on-device latency (Cortex-M33 @ 150MHz): < 1.0 ms")
+
+    # 5. Export C Header
+    output_dir = os.path.dirname(os.path.abspath(__file__))
+    header_path = os.path.join(output_dir, "risk_model_data.h")
+    firmware_header_path = os.path.join(output_dir, "..", "firmware", "mcxn236", "include", "risk_model_data.h")
+
+    write_risk_c_header(header_path, means, stds, quantized_weights, weight_scales)
+    write_risk_c_header(firmware_header_path, means, stds, quantized_weights, weight_scales)
+
+    print(f"[5/5] Exported C headers to:")
+    print(f"      - {header_path}")
+    print(f"      - {firmware_header_path}")
+
+    return acc
+
+
+def write_risk_c_header(filepath, means, stds, quantized_weights, scales):
+    os.makedirs(os.path.dirname(filepath), exist_ok=True)
+    with open(filepath, "w") as f:
+        f.write("/*\n")
+        f.write(" * RESILINK GRID v4 — Autogenerated TinyML Clinical Risk Model (INT8)\n")
+        f.write(" * Target: NXP FRDM-MCXN236 (Cortex-M33 @ 150MHz)\n")
+        f.write(" * Notice: Decision support, not a diagnosis\n")
+        f.write(" */\n\n")
+        f.write("#ifndef RISK_MODEL_DATA_H\n")
+        f.write("#define RISK_MODEL_DATA_H\n\n")
+        f.write("#include <stdint.h>\n")
+        f.write("#include <stdbool.h>\n\n")
+
+        f.write("#define RISK_MODEL_NUM_INPUTS   12\n")
+        f.write("#define RISK_MODEL_NUM_CLASSES  4\n")
+        f.write("#define RISK_MODEL_L1_NODES     16\n")
+        f.write("#define RISK_MODEL_L2_NODES     8\n")
+        f.write("#define RISK_ARENA_SIZE_BYTES   16384\n\n")
+
+        f.write("static const float RISK_FEATURE_MEANS[12] = {\n    ")
+        f.write(", ".join([f"{v:.4f}f" for v in means]))
+        f.write("\n};\n\n")
+
+        f.write("static const float RISK_FEATURE_STDS[12] = {\n    ")
+        f.write(", ".join([f"{v:.4f}f" for v in stds]))
+        f.write("\n};\n\n")
+
+        # Layer 1
+        W1, b1 = quantized_weights[0]
+        f.write(f"static const float RISK_SCALE_L1 = {scales[0]:.8f}f;\n")
+        f.write("static const int8_t RISK_WEIGHTS_L1[12][16] = {\n")
+        for r in range(12):
+            f.write("    {" + ", ".join([f"{W1[r, c]}" for c in range(16)]) + "},\n")
+        f.write("};\n\n")
+        f.write("static const int32_t RISK_BIAS_L1[16] = {\n    ")
+        f.write(", ".join([f"{b1[c]}" for c in range(16)]))
+        f.write("\n};\n\n")
+
+        # Layer 2
+        W2, b2 = quantized_weights[1]
+        f.write(f"static const float RISK_SCALE_L2 = {scales[1]:.8f}f;\n")
+        f.write("static const int8_t RISK_WEIGHTS_L2[16][8] = {\n")
+        for r in range(16):
+            f.write("    {" + ", ".join([f"{W2[r, c]}" for c in range(8)]) + "},\n")
+        f.write("};\n\n")
+        f.write("static const int32_t RISK_BIAS_L2[8] = {\n    ")
+        f.write(", ".join([f"{b2[c]}" for c in range(8)]))
+        f.write("\n};\n\n")
+
+        # Output Layer
+        W3, b3 = quantized_weights[2]
+        f.write(f"static const float RISK_SCALE_OUT = {scales[2]:.8f}f;\n")
+        f.write("static const int8_t RISK_WEIGHTS_OUT[8][4] = {\n")
+        for r in range(8):
+            f.write("    {" + ", ".join([f"{W3[r, c]}" for c in range(4)]) + "},\n")
+        f.write("};\n\n")
+        f.write("static const int32_t RISK_BIAS_OUT[4] = {\n    ")
+        f.write(", ".join([f"{b3[c]}" for c in range(4)]))
+        f.write("\n};\n\n")
+
+        f.write("#endif /* RISK_MODEL_DATA_H */\n")
+
+
+if __name__ == "__main__":
+    train_and_evaluate_risk_model()
