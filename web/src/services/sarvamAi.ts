@@ -69,9 +69,10 @@ const TRANSLATION_MAP: Record<string, Record<string, string>> = {
 
 export function getSarvamApiKey(): string {
   if (typeof localStorage !== 'undefined') {
-    return localStorage.getItem('resilink_sarvam_api_key') || (import.meta as any).env?.VITE_SARVAM_API_KEY || '';
+    const local = localStorage.getItem('resilink_sarvam_api_key');
+    if (local && local.trim()) return local.trim();
   }
-  return '';
+  return (import.meta as any).env?.VITE_SARVAM_API_KEY || '';
 }
 
 export function setSarvamApiKey(key: string): void {
