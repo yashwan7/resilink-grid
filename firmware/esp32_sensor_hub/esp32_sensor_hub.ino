@@ -110,6 +110,9 @@ void handleRoot() {
 }
 
 void handleApiData() {
+  server.sendHeader("Access-Control-Allow-Origin", "*");
+  server.sendHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
+  server.sendHeader("Access-Control-Allow-Headers", "*");
   String json = "{";
   json += "\"temp\":" + String(currentTemp, 1) + ",";
   json += "\"hum\":" + String(currentHum, 1) + ",";

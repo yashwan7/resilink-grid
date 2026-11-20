@@ -880,6 +880,30 @@ def get_latest_sensors_endpoint():
     """Returns the latest normalized MQTT sensor telemetry."""
     return mqtt_engine.current_telemetry
 
+@app.get("/api/esp32/sensors")
+def get_esp32_sensors_endpoint():
+    """Polls ESP32 at http://192.168.4.1/api/data with short timeout and falls back gracefully."""
+    import urllib.request
+    try:
+        req = urllib.request.Request("http://192.168.4.1/api/data", headers={"Accept": "application/json"})
+        with urllib.request.urlopen(req, timeout=1.0) as resp:
+            data = json.loads(resp.read().decode())
+            data["online"] = True
+            return data
+    except Exception as e:
+        return {
+            "online": False,
+            "error": str(e),
+            "temp": 28.1,
+            "hum": 61.5,
+            "gas": 415,
+            "fire": 0,
+            "relay": 0,
+            "lat": 12.9716,
+            "lng": 77.5946,
+            "message": "Connect laptop WiFi to ResQMesh-Hub (192.168.4.1)"
+        }
+
 @app.get("/api/sensors/status")
 def get_sensors_status_endpoint():
     """Returns the current HiveMQ MQTT connection and packet statistics."""

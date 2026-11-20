@@ -8,6 +8,7 @@ import {
   Siren, Share2, Navigation, MapPin, Copy, Check, X, Terminal
 } from 'lucide-react';
 import { useMqttTelemetry } from '../lib/useMqttTelemetry';
+import Esp32FieldSensorsCard from './Esp32FieldSensorsCard';
 
 export default function ClinicalOverview({ 
   patients = [], 
@@ -275,6 +276,9 @@ export default function ClinicalOverview({
           </div>
         </div>
       </div>
+
+      {/* ================= ESP32 #1 LIVE FIELD SENSOR OVERVIEW ================= */}
+      <Esp32FieldSensorsCard />
 
       {/* ================= EMERGENCY CASE GPS ALERT & RESCUE DISPATCH BANNER ================= */}
       {isEmergencyAlertOpen && (
