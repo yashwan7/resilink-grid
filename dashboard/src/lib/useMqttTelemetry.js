@@ -131,7 +131,7 @@ export function useMqttTelemetry(options = {}) {
 
   // Common metadata states
   const [hubOnline, setHubOnline] = useState(true);
-  const [location] = useState({ lat: '12.902092', lng: '77.504736' });
+  const [location] = useState({ lat: '13.1365', lng: '77.5646' });
   const [connectionStatus, setConnectionStatus] = useState(
     enableMock ? 'SIMULATED LOCAL STREAM' : 'CONNECTING'
   );

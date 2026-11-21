@@ -33,7 +33,7 @@ export const DEFAULT_PATIENTS_FIXTURE = [
       medications: [
         { medication: "Fentanyl", dose: "100mcg", administered_at: "14:15", administered_by: "Medic Echo", entry_id: "M1" }
       ],
-      gps: { lat: 12.902092, lng: 77.504736, altitude: 920.0 },
+      gps: { lat: 13.1365, lng: 77.5646, altitude: 920.0 },
       triage_color: "RED",
       delta_fields: [],
       offline_cached: true,
@@ -74,7 +74,7 @@ export const DEFAULT_PATIENTS_FIXTURE = [
         { medication: "Tranexamic Acid", dose: "1g IV", administered_at: "14:20", administered_by: "Dr. Nair", entry_id: "M2" },
         { medication: "O-Negative RBC", dose: "2 Units", administered_at: "14:24", administered_by: "Medic Sierra", entry_id: "M3" }
       ],
-      gps: { lat: 12.903392, lng: 77.506136, altitude: 920.0 },
+      gps: { lat: 13.1378, lng: 77.566, altitude: 920.0 },
       triage_color: "RED",
       delta_fields: [],
       offline_cached: false,
@@ -110,7 +110,7 @@ export const DEFAULT_PATIENTS_FIXTURE = [
         { medication: "Aspirin", dose: "325mg PO", administered_at: "14:05", administered_by: "Medic Alpha", entry_id: "M4" },
         { medication: "Heparin", dose: "5000 IU IV", administered_at: "14:10", administered_by: "Medic Alpha", entry_id: "M5" }
       ],
-      gps: { lat: 12.901692, lng: 77.491836, altitude: 920.0 },
+      gps: { lat: 13.1361, lng: 77.5517, altitude: 920.0 },
       triage_color: "RED",
       delta_fields: [],
       offline_cached: false,
@@ -150,7 +150,7 @@ export const DEFAULT_PATIENTS_FIXTURE = [
       medications: [
         { medication: "Ceftriaxone", dose: "1g IV", administered_at: "12:00", administered_by: "Sgt. Bradley", entry_id: "M6" }
       ],
-      gps: { lat: 12.904092, lng: 77.508336, altitude: 920.0 },
+      gps: { lat: 13.1385, lng: 77.5682, altitude: 920.0 },
       triage_color: "YELLOW",
       delta_fields: [],
       offline_cached: false,
@@ -190,7 +190,7 @@ export const DEFAULT_PATIENTS_FIXTURE = [
       medications: [
         { medication: "Methylprednisolone", dose: "500mg IV", administered_at: "13:30", administered_by: "Dr. Kulkarni", entry_id: "M7" }
       ],
-      gps: { lat: 12.899692, lng: 77.500836, altitude: 920.0 },
+      gps: { lat: 13.1341, lng: 77.5607, altitude: 920.0 },
       triage_color: "YELLOW",
       delta_fields: [],
       offline_cached: false,
@@ -226,7 +226,7 @@ export const DEFAULT_PATIENTS_FIXTURE = [
         { medication: "Albuterol Nebulizer", dose: "5mg", administered_at: "14:00", administered_by: "Medic Bravo", entry_id: "M8" },
         { medication: "Dexamethasone", dose: "8mg IV", administered_at: "14:15", administered_by: "Dr. Sharma", entry_id: "M9" }
       ],
-      gps: { lat: 12.897692, lng: 77.511836, altitude: 920.0 },
+      gps: { lat: 13.1321, lng: 77.5717, altitude: 920.0 },
       triage_color: "YELLOW",
       delta_fields: [],
       offline_cached: false,
@@ -266,7 +266,7 @@ export const DEFAULT_PATIENTS_FIXTURE = [
       medications: [
         { medication: "Paracetamol", dose: "1g PO", administered_at: "13:45", administered_by: "Field Nurse", entry_id: "M10" }
       ],
-      gps: { lat: 12.900892, lng: 77.502336, altitude: 920.0 },
+      gps: { lat: 13.1353, lng: 77.5622, altitude: 920.0 },
       triage_color: "GREEN",
       delta_fields: [],
       offline_cached: false,
@@ -301,7 +301,7 @@ export const DEFAULT_PATIENTS_FIXTURE = [
       medications: [
         { medication: "Ibuprofen", dose: "400mg PO", administered_at: "13:15", administered_by: "Medic Echo", entry_id: "M11" }
       ],
-      gps: { lat: 12.902892, lng: 77.507136, altitude: 920.0 },
+      gps: { lat: 13.1373, lng: 77.567, altitude: 920.0 },
       triage_color: "GREEN",
       delta_fields: [],
       offline_cached: false,

@@ -12,14 +12,14 @@ import {
 const INITIAL_PHARMACIES = [
   {
     id: 'PHARM-01',
-    name: 'MedPlus Pharmacy — RR Nagar Main Road',
-    address: 'Ideal Homes Twp, Rajarajeshwari Nagar, Bengaluru 560098',
-    locality: 'Rajarajeshwari Nagar',
+    name: 'MedPlus Pharmacy — Doddaballapur Main Road',
+    address: 'Ideal Homes Twp, Yelahanka New Town, Bengaluru 560098',
+    locality: 'Yelahanka New Town',
     phone: '+91 80 2553 4101',
     operating_hours: '24/7 Day & Night Emergency Pharmacy',
     is_open: true,
-    lat: 12.902492,
-    lng: 77.504336,
+    lat: 13.1369,
+    lng: 77.5642,
     distance_km: 0.08,
     verified_at: 'Just now',
     is_verified: true,
@@ -95,12 +95,12 @@ const INITIAL_PHARMACIES = [
     id: 'PHARM-02',
     name: 'Apollo Pharmacy — 100 Feet Road (Sony World Signal)',
     address: '100 Feet Road, Near Sony World Signal, Koramangala 4th Block, Bengaluru 560034',
-    locality: 'Gopalan Mall Arch, Mysore Rd',
+    locality: 'NES Circle, Yelahanka Old Town',
     phone: '+91 80 2553 5522',
     operating_hours: '24/7 Emergency Operation',
     is_open: true,
-    lat: 12.902892,
-    lng: 77.6265,
+    lat: 13.1373,
+    lng: 77.686364,
     distance_km: 0.25,
     verified_at: '3 mins ago',
     is_verified: true,
@@ -180,8 +180,8 @@ const INITIAL_PHARMACIES = [
     phone: '+91 80 4322 8800',
     operating_hours: '24/7 Day & Night Pharmacy',
     is_open: true,
-    lat: 12.901692,
-    lng: 77.503836,
+    lat: 13.1361,
+    lng: 77.5637,
     distance_km: 0.12,
     verified_at: '8 mins ago',
     is_verified: true,
@@ -245,8 +245,8 @@ const INITIAL_PHARMACIES = [
     phone: '+91 80 2206 5000',
     operating_hours: '24/7 Hospital Trauma Dispensary',
     is_open: true,
-    lat: 12.898392,
-    lng: 77.6210,
+    lat: 13.1328,
+    lng: 77.680864,
     distance_km: 0.55,
     verified_at: '2 mins ago',
     is_verified: true,
@@ -305,13 +305,13 @@ const INITIAL_PHARMACIES = [
   {
     id: 'PHARM-05',
     name: 'Sanjivani Medical & General Stores (Koramangala 5th Block)',
-    address: 'KHB Colony, Kengeri Satellite Town, Bengaluru 560095',
+    address: 'KHB Colony, Kogilu Road, Yelahanka, Bengaluru 560095',
     locality: '5th Block Koramangala',
     phone: '+91 80 2553 1144',
     operating_hours: '07:30 - 23:30 (Open Now)',
     is_open: true,
-    lat: 12.900892,
-    lng: 77.6185,
+    lat: 13.1353,
+    lng: 77.678364,
     distance_km: 0.62,
     verified_at: '15 mins ago',
     is_verified: true,
@@ -359,8 +359,8 @@ const INITIAL_PHARMACIES = [
     phone: '+91 80 2553 3399',
     operating_hours: '08:00 - 21:00 (Open Now)',
     is_open: true,
-    lat: 12.904392,
-    lng: 77.501836,
+    lat: 13.1388,
+    lng: 77.5617,
     distance_km: 0.40,
     verified_at: 'Just now',
     is_verified: true,
@@ -578,7 +578,7 @@ export default function PharmacyNetwork({ patients: _patients = [], onSelectPati
 
     if (!mapInstanceRef.current) {
       const map = L.map(mapContainerRef.current, {
-        center: [12.902092, 77.504736],
+        center: [13.1365, 77.5646],
         zoom: 15,
         zoomControl: true,
         attributionControl: false
@@ -635,7 +635,7 @@ export default function PharmacyNetwork({ patients: _patients = [], onSelectPati
     markersRef.current.forEach(m => m.remove());
     markersRef.current = [];
 
-    // Add Base Clinical Station Marker at 12.902092, 77.504736 (RR Nagar / Kengeri Hub)
+    // Add Base Clinical Station Marker at 13.1365, 77.5646 (Yelahanka North Hub)
     const hospitalIconHtml = `
       <div style="position: relative; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center;">
         <div style="position: absolute; inset: 0; border-radius: 50%; background: rgba(45,106,79,0.25); animation: ping 2.5s cubic-bezier(0, 0, 0.2, 1) infinite;"></div>
@@ -655,7 +655,7 @@ export default function PharmacyNetwork({ patients: _patients = [], onSelectPati
       iconSize: [44, 44],
       iconAnchor: [22, 22]
     });
-    const hqMarker = L.marker([12.902092, 77.504736], { icon: hospitalIcon }).addTo(map);
+    const hqMarker = L.marker([13.1365, 77.5646], { icon: hospitalIcon }).addTo(map);
     hqMarker.bindPopup(`
       <div style="font-family: monospace; font-size: 11px; color: #1A241C; padding: 2px;">
         <strong style="color: #2D6A4F; font-size: 12px;">[BASE] KSHITIJ CLINICAL DISPATCH HQ</strong><br/>
@@ -998,7 +998,7 @@ export default function PharmacyNetwork({ patients: _patients = [], onSelectPati
               SECTOR PHARMACY RADAR MAP
             </span>
             <span className="text-[10px] text-[#94A3B8]">
-              &bull; Center: [12.902092, 77.504736] &bull; 6 Tracked Depots
+              &bull; Center: [13.1365, 77.5646] &bull; 6 Tracked Depots
             </span>
           </div>
 
@@ -1064,7 +1064,7 @@ export default function PharmacyNetwork({ patients: _patients = [], onSelectPati
           <div className="flex items-center gap-3">
             <span className="flex items-center gap-1.5">
               <span className="w-2.5 h-2.5 rounded-full bg-[#1A241C] border border-[#52B788] inline-block shadow-[0_0_6px_#52B788]" />
-              <strong>Base Clinical Station (12.902092, 77.504736)</strong>
+              <strong>Base Clinical Station (13.1365, 77.5646)</strong>
             </span>
             <span className="flex items-center gap-1.5">
               <span className="w-2.5 h-2.5 rounded-sm bg-[#2D6A4F] inline-block shadow-[0_0_6px_#2D6A4F]" />

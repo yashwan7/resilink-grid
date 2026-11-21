@@ -123,7 +123,7 @@ export default function BloodBankNetwork({
 
     if (!mapInstanceRef.current) {
       const map = L.map(mapContainerRef.current, {
-        center: [12.902092, 77.504736],
+        center: [13.1365, 77.5646],
         zoom: 13,
         zoomControl: true
       });
@@ -174,11 +174,11 @@ export default function BloodBankNetwork({
       iconSize: [34, 34],
       iconAnchor: [17, 17]
     });
-    const hospMarker = L.marker([12.902092, 77.504736], { icon: hospIcon })
+    const hospMarker = L.marker([13.1365, 77.5646], { icon: hospIcon })
       .bindPopup(`
         <div style="background: #141416; color: #F5F5F5; font-family: monospace; font-size: 11px; padding: 4px; border: 1px solid #35353B;">
           <strong style="color: #FF2D3D;">FST Alpha Forward Base</strong><br>
-          <span style="color: #A1A1AA;">RR Nagar Sector, Bengaluru 560098</span>
+          <span style="color: #A1A1AA;">Yelahanka Satellite Town, Bengaluru 560064</span>
         </div>
       `)
       .addTo(map);

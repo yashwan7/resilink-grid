@@ -872,8 +872,8 @@ class SensorPublishRequest(BaseModel):
     pulse_val: Optional[int] = None
     force_n: Optional[int] = None
     hub_online: Optional[bool] = True
-    lat: Optional[str] = "12.902092"
-    lng: Optional[str] = "77.504736"
+    lat: Optional[str] = "13.1365"
+    lng: Optional[str] = "77.5646"
 
 @app.get("/api/sensors/latest")
 def get_latest_sensors_endpoint():
@@ -899,8 +899,8 @@ def get_esp32_sensors_endpoint():
             "gas": 415,
             "fire": 0,
             "relay": 0,
-            "lat": 12.902092,
-            "lng": 77.504736,
+            "lat": 13.1365,
+            "lng": 77.5646,
             "message": "Connect laptop WiFi to ResQMesh-Hub (192.168.4.1)"
         }
 

@@ -69,7 +69,7 @@ export default function TriageMap({ patients = [], selectedPatientId, onSelectPa
       event_id: 'EVT-1001',
       timestamp: new Date().toLocaleTimeString(),
       event_type: 'RADAR_INITIALIZED',
-      details: 'GPS Radar anchored to RR Nagar Sector, Bengaluru (12.902092, 77.504736). Initial 5km sector surveillance engaged.',
+      details: 'GPS Radar anchored to Yelahanka Tactical Sector, Bengaluru (13.1365, 77.5646). Initial 5km sector surveillance engaged.',
       is_demo: true
     }
   ]);
@@ -421,7 +421,7 @@ export default function TriageMap({ patients = [], selectedPatientId, onSelectPa
     const defaultLoc = ALTERNATIVE_LOCATIONS[0];
     await handleSelectLocation(defaultLoc);
     setOperatingRadiusKm(5.0);
-    showNotice('Radar recentered to default anchor: RR Nagar Sector, Bengaluru (12.902092, 77.504736).');
+    showNotice('Radar recentered to default anchor: Yelahanka Tactical Sector, Bengaluru (13.1365, 77.5646).');
 
     if (isLiveApiConnected) {
       try {
