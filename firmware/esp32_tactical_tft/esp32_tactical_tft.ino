@@ -1,18 +1,15 @@
 /*
   ==========================================================================================
-  ResQMesh Tactical Field Unit v4.5 - Interactive Hackathon Judge Edition
+  ResQMesh Tactical Field Unit v4.5 - Hackathon Interactive Touch Edition
   Target Board: ESP32 DevKit v1 (Dual-Core 240MHz, 4MB Flash)
   Display: 2.8" SPI TFT LCD (ILI9341 320x240) + XPT2046 Resistive Touch Controller
   
-  JUDGE-CRUSHING INTERACTIVE CAPABILITIES:
-    [1] LIVE DYNAMIC ECG SWEEP with Pulsing Heart Icon (BPM sync)
-    [2] REAL-TIME NEWS2 COMPUTE (National Early Warning Score)
-    [3] FULL EMERGENCY SOS STROBE & DUAL-TONE TACTICAL SIREN
-    [4] GROOT AI MULTILINGUAL EDGE ADVISORY:
-        - Instant Touch Toggle: ENGLISH / HINDI (हिन्दी) / KANNADA (ಕನ್ನಡ)
-    [5] INTERACTIVE 108 EMERGENCY DISPATCH with Animated Progress Bar
-    [6] CRYPTOGRAPHIC HMAC-SHA256 MESH INTEGRITY AUDIT
-    [7] HAPTIC DUAL-TONE AUDIO FEEDBACK ON EVERY TOUCH
+  TOUCH HIGHLIGHTS:
+    - Generous Hitboxes (Finger-friendly, no stylus required)
+    - Instant Haptic Buzzer Chirp on Touch
+    - Visual Button Highlight/Press Confirmation
+    - Serial Monitor Live Touch Debugger (115200 baud)
+    - Clean SPI Bus Arbitration (TFT_CS held HIGH during touch polling)
   ==========================================================================================
 */
 
@@ -21,21 +18,21 @@
 #include <Adafruit_ILI9341.h>
 #include <XPT2046_Touchscreen.h>
 
-// ---------------- ESP32 PIN CONFIGURATION ----------------
-#define TFT_CS      15
-#define TFT_DC       2
-#define TFT_RST      4
-#define TOUCH_CS     5
-#define BUZZER_PIN  12
+// ---------------- ESP32 HARDWARE PIN DEFINITIONS ----------------
+#define TFT_CS      15  // Chip select for ILI9341
+#define TFT_DC       2  // Data/Command for ILI9341
+#define TFT_RST      4  // Reset pin for ILI9341
+#define TOUCH_CS     5  // Chip select for XPT2046 Touch Controller
+#define BUZZER_PIN  12  // Haptic feedback piezo buzzer
 
 Adafruit_ILI9341 tft = Adafruit_ILI9341(TFT_CS, TFT_DC, TFT_RST);
 XPT2046_Touchscreen ts(TOUCH_CS);
 
-// ---------------- TOUCH CALIBRATION ----------------
-#define TS_MINX 240
-#define TS_MAXX 3820
-#define TS_MINY 240
-#define TS_MAXY 3820
+// ---------------- TOUCH CALIBRATION (2.8" ILI9341 LANDSCAPE) ----------------
+#define TS_MINX 220
+#define TS_MAXX 3800
+#define TS_MINY 220
+#define TS_MAXY 3800
 
 // ---------------- 16-BIT TACTICAL COLOR PALETTE ----------------
 #define BG_BLACK      0x0000
@@ -51,7 +48,7 @@ XPT2046_Touchscreen ts(TOUCH_CS);
 #define C_NAVY_BTN    0x0155
 #define C_FOREST_BTN  0x03E0
 
-// ---------------- STATE MACHINE ----------------
+// ---------------- SCREEN STATE MACHINE ----------------
 enum ScreenMode {
   MODE_TACTICAL_HUD,
   MODE_GROOT_AI,
@@ -120,11 +117,8 @@ VitalsProfile patientProfiles[3] = {
 
 int activePtIndex = 0;
 
-// Dynamic simulation vars
 float simulatedSpO2 = 88.5;
 int   simulatedHR   = 138;
-unsigned long pulseTimer = 0;
-bool heartBeatState = false;
 
 // ---------------- HAPTIC AUDIO TONES ----------------
 void playAudioChirp(int freq, int durationMs) {
@@ -136,25 +130,42 @@ void playAudioChirp(int freq, int durationMs) {
 void playTacticalSirenStep() {
   for (int f = 1600; f < 3000; f += 250) {
     tone(BUZZER_PIN, f);
-    delay(10);
+    delay(8);
   }
   for (int f = 3000; f > 1600; f -= 250) {
     tone(BUZZER_PIN, f);
-    delay(10);
+    delay(8);
   }
   noTone(BUZZER_PIN);
 }
 
-// ---------------- TOUCH SYSTEM ----------------
+// ---------------- BULLETPROOF TOUCH READER ----------------
 bool readTouch(int &x, int &y) {
-  if (!ts.touched()) return false;
-  TS_Point p = ts.getPoint();
-  if (p.z < 180) return false;
+  // Ensure TFT_CS is HIGH so SPI MISO bus is free for Touch
+  digitalWrite(TFT_CS, HIGH);
 
+  if (!ts.touched()) return false;
+
+  TS_Point p = ts.getPoint();
+
+  // Filter light noise touches
+  if (p.z < 160) return false;
+
+  // Calibrate coordinate plane (Landscape Rotation 1)
   x = map(p.x, TS_MINX, TS_MAXX, tft.width() - 1, 0);
   y = map(p.y, TS_MINY, TS_MAXY, tft.height() - 1, 0);
+
   x = constrain(x, 0, tft.width() - 1);
   y = constrain(y, 0, tft.height() - 1);
+
+  // Live Serial Debugging (Judge Demo verification)
+  Serial.print("[TOUCH EVENT] Screen X: ");
+  Serial.print(x);
+  Serial.print(" | Y: ");
+  Serial.print(y);
+  Serial.print(" | Pressure Z: ");
+  Serial.println(p.z);
+
   return true;
 }
 
@@ -169,14 +180,14 @@ void drawHeader(const char* title, const char* rightTag, uint16_t tagColor) {
   tft.print(title);
 
   tft.setTextColor(tagColor);
-  tft.setCursor(170, 9);
+  tft.setCursor(168, 9);
   tft.print(rightTag);
 }
 
 // ---------------- SCREEN 1: TACTICAL HUD (STATIC) ----------------
 void renderHudStatic() {
   tft.fillScreen(BG_BLACK);
-  drawHeader("RESQMESH TACTICAL v4.5", "GRID: 13.13N, 77.56E", C_WHITE);
+  drawHeader("RESQMESH TACTICAL v4.5", "YELAHANKA [13.13N, 77.56E]", C_WHITE);
 
   // Left Box: Patient ID & Triage Tag
   tft.fillRoundRect(6, 32, 150, 78, 4, C_DARK_CARD);
@@ -202,21 +213,21 @@ void renderHudStatic() {
   tft.setCursor(215, 120);
   tft.print("PULSE MONITOR");
 
-  // Bottom Touch Buttons (3 Buttons)
-  // Button 1: [CYCLE TRIAGE] (X: 6 to 104, Y: 186 to 234)
-  tft.fillRoundRect(6, 186, 98, 48, 5, C_NAVY_BTN);
-  tft.drawRoundRect(6, 186, 98, 48, 5, C_CYAN);
+  // Bottom Touch Buttons (3 Large Hitbox Buttons)
+  // Button 1: [CYCLE TRIAGE] (X: 4 to 104, Y: 184 to 238)
+  tft.fillRoundRect(4, 184, 100, 52, 6, C_NAVY_BTN);
+  tft.drawRoundRect(4, 184, 100, 52, 6, C_CYAN);
   tft.setTextColor(C_WHITE);
   tft.setTextSize(1);
-  tft.setCursor(18, 200);
+  tft.setCursor(16, 200);
   tft.print("CYCLE PT");
-  tft.setCursor(18, 214);
+  tft.setCursor(16, 214);
   tft.setTextColor(C_CYAN);
   tft.print("[SIMULATE]");
 
-  // Button 2: [GROOT AI ADVISOR] (X: 111 to 209, Y: 186 to 234)
-  tft.fillRoundRect(111, 186, 98, 48, 5, 0x0320);
-  tft.drawRoundRect(111, 186, 98, 48, 5, C_GREEN);
+  // Button 2: [GROOT AI ADVISOR] (X: 110 to 210, Y: 184 to 238)
+  tft.fillRoundRect(110, 184, 100, 52, 6, 0x0320);
+  tft.drawRoundRect(110, 184, 100, 52, 6, C_GREEN);
   tft.setTextColor(C_WHITE);
   tft.setCursor(122, 200);
   tft.print("GROOT AI");
@@ -224,9 +235,9 @@ void renderHudStatic() {
   tft.setTextColor(C_GREEN);
   tft.print("[ADVISOR]");
 
-  // Button 3: [SOS CODE RED] (X: 216 to 314, Y: 186 to 234)
-  tft.fillRoundRect(216, 186, 98, 48, 5, 0x6000);
-  tft.drawRoundRect(216, 186, 98, 48, 5, C_RED);
+  // Button 3: [SOS CODE RED] (X: 216 to 316, Y: 184 to 238)
+  tft.fillRoundRect(216, 184, 100, 52, 6, 0x6000);
+  tft.drawRoundRect(216, 184, 100, 52, 6, C_RED);
   tft.setTextColor(C_WHITE);
   tft.setCursor(232, 200);
   tft.print("SOS SIREN");
@@ -282,9 +293,10 @@ void updateHudValues() {
   bar = constrain(bar, 0, 132);
   tft.fillRect(172, 148, bar, 8, pt.tagColor);
 
+  tft.fillRect(172, 160, 136, 14, 0x0821);
   tft.setCursor(172, 162);
   tft.setTextColor(C_GREY);
-  tft.print("NEWS2 RANGE: ");
+  tft.print("NEWS2: ");
   tft.setTextColor(pt.tagColor);
   if (pt.news2 >= 7) tft.print("TIER 3 SEVERE");
   else if (pt.news2 >= 5) tft.print("TIER 2 MEDIUM");
@@ -298,19 +310,19 @@ void renderLiveEcg() {
   const int minX = 14;
   const int maxX = 160;
 
-  // Clear upcoming 3 pixels
+  // Clear upcoming 3 columns
   tft.drawFastVLine(ecgX + 1, 132, 34, 0x0821);
   tft.drawFastVLine(ecgX + 2, 132, 34, 0x0821);
   tft.drawFastVLine(ecgX + 3, 132, 34, 0x0821);
 
-  // Cardiac cycle calculation
-  int cyclePeriod = (activePtIndex == 0) ? 22 : 36;
+  // Speed adjusts based on patient HR
+  int cyclePeriod = (activePtIndex == 0) ? 20 : 36;
   int pos = ecgX % cyclePeriod;
   int y = 148;
 
   if (pos == 5) y = 145;         // P-wave
   else if (pos == 8) y = 152;    // Q-dip
-  else if (pos == 10) y = 134;   // R-spike
+  else if (pos == 10) y = 134;   // R-spike (sharp contraction)
   else if (pos == 12) y = 156;   // S-trough
   else if (pos == 16) y = 144;   // T-wave
 
@@ -327,92 +339,90 @@ void renderLiveEcg() {
 // ---------------- SCREEN 2: GROOT AI ADVISORY (MULTILINGUAL) ----------------
 void renderGrootAiScreen() {
   tft.fillScreen(BG_BLACK);
-
-  // Top Bar with Language Toggle Indicator
   drawHeader("GROOT CLINICAL AI", "EDGE DECISION ENGINE", C_GREEN);
 
-  // [< BACK] Button (X: 6 to 76, Y: 30 to 56)
-  tft.fillRoundRect(6, 30, 70, 26, 4, C_DARK_CARD);
-  tft.drawRoundRect(6, 30, 70, 26, 4, C_WHITE);
+  // [< BACK] Button (X: 4 to 78, Y: 30 to 58)
+  tft.fillRoundRect(4, 30, 74, 28, 4, C_DARK_CARD);
+  tft.drawRoundRect(4, 30, 74, 28, 4, C_WHITE);
   tft.setTextColor(C_WHITE);
   tft.setTextSize(1);
-  tft.setCursor(14, 39);
+  tft.setCursor(14, 40);
   tft.print("< BACK");
 
-  // [LANG: EN / HI / KN] Toggle Button (X: 82 to 210, Y: 30 to 56)
-  tft.fillRoundRect(82, 30, 130, 26, 4, 0x011F);
-  tft.drawRoundRect(82, 30, 130, 26, 4, C_CYAN);
+  // [LANG: EN / HI / KN] Toggle Button (X: 84 to 216, Y: 30 to 58)
+  tft.fillRoundRect(84, 30, 132, 28, 4, 0x011F);
+  tft.drawRoundRect(84, 30, 132, 28, 4, C_CYAN);
   tft.setTextColor(C_CYAN);
-  tft.setCursor(90, 39);
+  tft.setCursor(92, 40);
   if (currentLang == LANG_EN) tft.print("LANG: ENGLISH");
   else if (currentLang == LANG_HI) tft.print("LANG: HINDI");
   else tft.print("LANG: KANNADA");
 
-  // Patient badge (X: 220 to 314, Y: 30 to 56)
+  // Patient badge (X: 222 to 316, Y: 30 to 58)
   VitalsProfile& pt = patientProfiles[activePtIndex];
-  tft.fillRoundRect(220, 30, 94, 26, 4, pt.tagColor);
+  tft.fillRoundRect(222, 30, 94, 28, 4, pt.tagColor);
   tft.setTextColor(C_WHITE);
-  tft.setCursor(228, 39);
+  tft.setCursor(230, 40);
   tft.print(pt.id);
 
   // Main Protocol Card
-  tft.fillRoundRect(6, 62, 308, 116, 5, C_DARK_CARD);
-  tft.drawRoundRect(6, 62, 308, 116, 5, pt.tagColor);
+  tft.fillRoundRect(4, 64, 312, 114, 5, C_DARK_CARD);
+  tft.drawRoundRect(4, 64, 312, 114, 5, pt.tagColor);
 
   tft.setTextColor(pt.tagColor);
   tft.setTextSize(1);
-  tft.setCursor(14, 70);
+  tft.setCursor(12, 72);
   tft.print("TRIAGE STATUS & DIAGNOSIS:");
 
   tft.setTextColor(C_WHITE);
   tft.setTextSize(1);
-  tft.setCursor(14, 84);
+  tft.setCursor(12, 86);
   if (currentLang == LANG_EN) tft.print(pt.statusEn);
   else if (currentLang == LANG_HI) tft.print(pt.statusHi);
   else tft.print(pt.statusKn);
 
-  tft.drawFastHLine(14, 102, 292, C_CARD_BORDER);
+  tft.drawFastHLine(12, 102, 296, C_CARD_BORDER);
 
   tft.setTextColor(C_YELLOW);
-  tft.setCursor(14, 110);
-  tft.print("CLINICAL DIRECTIVE / KARYAVAHI:");
+  tft.setCursor(12, 110);
+  tft.print("CLINICAL DIRECTIVE / PROTOCOL:");
 
   tft.setTextColor(C_WHITE);
-  tft.setCursor(14, 124);
+  tft.setCursor(12, 124);
   if (currentLang == LANG_EN) tft.print(pt.actionEn);
   else if (currentLang == LANG_HI) tft.print(pt.actionHi);
   else tft.print(pt.actionKn);
 
   tft.setTextColor(C_CYAN);
-  tft.setCursor(14, 146);
+  tft.setCursor(12, 144);
   tft.print("RESOURCE: ");
   tft.setTextColor(C_WHITE);
   tft.print("Manipal North ICU Bay 02 | O2 Cyl Reserved");
 
   tft.setTextColor(C_GREY);
-  tft.setCursor(14, 162);
+  tft.setCursor(12, 160);
   tft.print("Mesh Verification: HMAC-SHA256 Hash Chain [VALID]");
 
-  // Bottom Interactive Touch Buttons
-  // Left: [CHANGE LANGUAGE] (X: 6 to 154, Y: 186 to 234)
-  tft.fillRoundRect(6, 186, 148, 48, 5, C_NAVY_BTN);
-  tft.drawRoundRect(6, 186, 148, 48, 5, C_CYAN);
+  // Bottom Buttons
+  // Left: [CHANGE LANGUAGE] (X: 4 to 156, Y: 184 to 238)
+  tft.fillRoundRect(4, 184, 152, 52, 6, C_NAVY_BTN);
+  tft.drawRoundRect(4, 184, 152, 52, 6, C_CYAN);
   tft.setTextColor(C_WHITE);
   tft.setTextSize(1);
-  tft.setCursor(20, 200);
+  tft.setCursor(16, 200);
   tft.print("TAP: SWITCH LANG");
-  tft.setCursor(20, 214);
+  tft.setCursor(16, 214);
   tft.setTextColor(C_CYAN);
   tft.print("EN / HINDI / KANNADA");
 
-  // Right: [DISPATCH 108 AMBULANCE] (X: 166 to 314, Y: 186 to 234)
-  tft.fillRoundRect(166, 186, 148, 48, 5, 0x8000); // Alert Red
-  tft.drawRoundRect(166, 186, 148, 48, 5, C_RED);
+  // Right: [DISPATCH 108 AMBULANCE] (X: 164 to 316, Y: 184 to 238)
+  tft.fillRoundRect(164, 184, 152, 52, 6, 0x8000);
+  tft.drawRoundRect(164, 184, 152, 52, 6, C_RED);
   tft.setTextColor(C_WHITE);
   tft.setTextSize(1);
-  tft.setCursor(182, 200);
+  tft.setCursor(180, 200);
   tft.print("DISPATCH 108");
-  tft.setCursor(182, 214);
+  tft.setCursor(180, 214);
   tft.setTextColor(C_YELLOW);
   tft.print("AMBULANCE / DRONE");
 }
@@ -443,18 +453,16 @@ void runDispatchAnimation() {
   tft.setTextColor(C_YELLOW);
   tft.print("ETA: 3.8 MINUTES | PRIORITY 1 ESCORT");
 
-  // Animated Progress Bar with Chimes
   tft.drawRect(30, 160, 260, 14, C_WHITE);
   for (int p = 0; p <= 256; p += 32) {
     tft.fillRect(32, 162, p, 10, C_GREEN);
-    playAudioChirp(2000 + (p * 5), 40);
-    delay(100);
+    playAudioChirp(2000 + (p * 5), 35);
+    delay(90);
   }
 
   playAudioChirp(3400, 180);
   delay(1200);
 
-  // Return to Groot AI screen
   currentMode = MODE_GROOT_AI;
   renderGrootAiScreen();
 }
@@ -498,7 +506,6 @@ void runEmergencySosMode() {
     }
   }
 
-  // Check tap to dismiss alarm
   int tx = 0, ty = 0;
   if (readTouch(tx, ty)) {
     playAudioChirp(1200, 80);
@@ -515,9 +522,14 @@ void setup() {
   pinMode(BUZZER_PIN, OUTPUT);
   digitalWrite(BUZZER_PIN, LOW);
 
+  pinMode(TFT_CS, OUTPUT);
+  pinMode(TOUCH_CS, OUTPUT);
+  digitalWrite(TFT_CS, HIGH);
+  digitalWrite(TOUCH_CS, HIGH);
+
   SPI.begin();
 
-  tft.begin(40000000); // Snappy 40MHz SPI
+  tft.begin(40000000);
   tft.setRotation(1);
 
   ts.begin();
@@ -529,7 +541,10 @@ void setup() {
   renderHudStatic();
   updateHudValues();
 
-  Serial.println("[RESQMESH] Interactive Field Unit Ready.");
+  Serial.println("\n==================================================");
+  Serial.println("[RESQMESH] Interactive Touch Field Unit Online.");
+  Serial.println("Tap screen to see real-time X/Y coordinates.");
+  Serial.println("==================================================");
 }
 
 // ---------------- MAIN LOOP ----------------
@@ -539,69 +554,75 @@ void loop() {
   static unsigned long lastEcg = 0;
   unsigned long now = millis();
 
-  // If in Emergency SOS mode, run strobe siren loop
+  // If in Emergency SOS mode, strobe siren loop handles touch to mute
   if (currentMode == MODE_EMERGENCY_SOS) {
     runEmergencySosMode();
     return;
   }
 
-  // 1. TOUCH INTERACTION (Every 40ms)
-  if (now - lastTouch >= 40) {
+  // 1. TOUCH INTERACTION (Poll every 35ms)
+  if (now - lastTouch >= 35) {
     lastTouch = now;
     int tx = 0, ty = 0;
 
     if (readTouch(tx, ty)) {
 
-      // -------- SCREEN 1: TACTICAL HUD --------
+      // -------- SCREEN 1: TACTICAL HUD TOUCH --------
       if (currentMode == MODE_TACTICAL_HUD) {
-        if (ty >= 184 && ty <= 236) {
+        // Bottom Button Row: Y between 175 and 240
+        if (ty >= 175) {
 
-          // BUTTON 1: CYCLE PATIENT
-          if (tx >= 6 && tx <= 104) {
+          // BUTTON 1: CYCLE PATIENT (Left third: X <= 106)
+          if (tx <= 106) {
             playAudioChirp(2000, 45);
             activePtIndex = (activePtIndex + 1) % 3;
             simulatedSpO2 = patientProfiles[activePtIndex].spO2;
             simulatedHR   = patientProfiles[activePtIndex].hr;
             updateHudValues();
+            delay(120); // Debounce
           }
 
-          // BUTTON 2: GROOT AI ADVISOR
-          else if (tx >= 111 && tx <= 209) {
+          // BUTTON 2: GROOT AI ADVISOR (Middle third: 107 to 213)
+          else if (tx >= 107 && tx <= 213) {
             playAudioChirp(2600, 60);
             currentMode = MODE_GROOT_AI;
             renderGrootAiScreen();
+            delay(150); // Debounce
           }
 
-          // BUTTON 3: SOS SIREN
-          else if (tx >= 216 && tx <= 314) {
+          // BUTTON 3: SOS SIREN (Right third: X >= 214)
+          else if (tx >= 214) {
             playAudioChirp(3600, 80);
             currentMode = MODE_EMERGENCY_SOS;
+            delay(150); // Debounce
           }
         }
       }
 
-      // -------- SCREEN 2: GROOT AI ADVISOR --------
+      // -------- SCREEN 2: GROOT AI ADVISOR TOUCH --------
       else if (currentMode == MODE_GROOT_AI) {
 
-        // [< BACK] BUTTON
-        if (ty <= 58 && tx <= 78) {
+        // [< BACK] BUTTON (Top-Left: Y <= 60, X <= 80)
+        if (ty <= 60 && tx <= 80) {
           playAudioChirp(1800, 40);
           currentMode = MODE_TACTICAL_HUD;
           renderHudStatic();
           updateHudValues();
+          delay(150);
         }
 
-        // [SWITCH LANGUAGE] TOP OR BOTTOM BUTTON
-        else if ((ty <= 58 && tx >= 82 && tx <= 210) || (ty >= 186 && tx <= 154)) {
+        // [SWITCH LANGUAGE] (Top Lang bar OR Bottom-Left Button)
+        else if ((ty <= 60 && tx >= 84 && tx <= 220) || (ty >= 175 && tx <= 160)) {
           playAudioChirp(2200, 45);
           if (currentLang == LANG_EN) currentLang = LANG_HI;
           else if (currentLang == LANG_HI) currentLang = LANG_KN;
           else currentLang = LANG_EN;
           renderGrootAiScreen();
+          delay(150);
         }
 
-        // [DISPATCH 108 AMBULANCE]
-        else if (ty >= 186 && tx >= 166) {
+        // [DISPATCH 108 AMBULANCE] (Bottom-Right Button: Y >= 175, X >= 161)
+        else if (ty >= 175 && tx >= 161) {
           runDispatchAnimation();
         }
       }
@@ -614,7 +635,7 @@ void loop() {
     renderLiveEcg();
   }
 
-  // 3. PERIODIC VITALS SINUS DYNAMICS (Every 1200ms)
+  // 3. PERIODIC VITALS DYNAMICS (Every 1200ms)
   if (currentMode == MODE_TACTICAL_HUD && (now - lastTelemetry >= 1200)) {
     lastTelemetry = now;
     if (activePtIndex == 0) { // Code Red
