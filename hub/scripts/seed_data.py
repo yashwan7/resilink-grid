@@ -6,6 +6,10 @@ Ambulances, Devices, Doctors, and Transmission Routes.
 Principle: Honest labels (source: simulated).
 """
 
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+
 import json
 import datetime
 from cryptography.hazmat.primitives.asymmetric import ec

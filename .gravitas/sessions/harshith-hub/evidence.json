@@ -1,0 +1,35 @@
+{
+  "session": "harshith-hub",
+  "contract_version": "1.0",
+  "verified_at": "2026-11-21T10:24:00+05:30",
+  "verdict": "PASS",
+  "validators": [
+    {
+      "name": "pytest hub/tests/",
+      "type": "project_tests",
+      "total": 26,
+      "passed": 26,
+      "failed": 0,
+      "duration_sec": 1.81
+    },
+    {
+      "name": "demo_script.py",
+      "type": "executable_reproducer",
+      "phases": 8,
+      "result": "ALL_PHASES_SUCCESS"
+    },
+    {
+      "name": "tamper_demo.py",
+      "type": "security_acceptance",
+      "result": "TAMPER_DETECTED_AT_SEQ_2"
+    }
+  ],
+  "invariants_verified": [
+    "Hub stores zero plaintext and zero keys",
+    "All clinical envelopes stored only in medical.db WAL",
+    "Audit hash chain links every record with RFC 8785 canonical JSON",
+    "2048-bit sliding bitmap rejects duplicate/replayed sequence counters",
+    "F8 deterministic emergency engine allocates nearest ambulance and best hospital offline",
+    "Groot gateway strictly queries aggregates and appends clinical disclaimer"
+  ]
+}
