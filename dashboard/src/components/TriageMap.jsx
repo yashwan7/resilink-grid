@@ -69,7 +69,7 @@ export default function TriageMap({ patients = [], selectedPatientId, onSelectPa
       event_id: 'EVT-1001',
       timestamp: new Date().toLocaleTimeString(),
       event_type: 'RADAR_INITIALIZED',
-      details: 'GPS Radar anchored to 80 Feet Road, 4th Block, Koramangala, Bengaluru (12.9352, 77.6244). Initial 5km sector surveillance engaged.',
+      details: 'GPS Radar anchored to RR Nagar Sector, Bengaluru (12.902092, 77.504736). Initial 5km sector surveillance engaged.',
       is_demo: true
     }
   ]);
@@ -421,7 +421,7 @@ export default function TriageMap({ patients = [], selectedPatientId, onSelectPa
     const defaultLoc = ALTERNATIVE_LOCATIONS[0];
     await handleSelectLocation(defaultLoc);
     setOperatingRadiusKm(5.0);
-    showNotice('Radar recentered to default anchor: 80 Feet Road, 4th Block, Koramangala (12.9352, 77.6244).');
+    showNotice('Radar recentered to default anchor: RR Nagar Sector, Bengaluru (12.902092, 77.504736).');
 
     if (isLiveApiConnected) {
       try {

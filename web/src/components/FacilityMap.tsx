@@ -31,7 +31,7 @@ export const FacilityMap: React.FC = () => {
   const [selectedFacility, setSelectedFacility] = useState<any | null>(null);
 
   // Device GPS Location (Bangalore demo base)
-  const deviceLocation = { lat: 12.9647, lon: 77.5768 };
+  const deviceLocation = { lat: 12.902092, lon: 77.504736 };
 
   useEffect(() => {
     fetchFacilities();
@@ -232,7 +232,7 @@ export const FacilityMap: React.FC = () => {
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
             <span style={{ fontSize: '12px', color: '#94a3b8', display: 'flex', alignItems: 'center', gap: '6px' }}>
               <Navigation size={14} color="#38bdf8" />
-              Tactical Grid: Bangalore Central (12.9647 N, 77.5768 E)
+              Tactical Grid: RR Nagar Tactical Grid (12.902092 N, 77.504736 E)
             </span>
             <span style={{ fontSize: '11px', color: '#64748b' }}>
               Offline Vector View (Local MBTiles)

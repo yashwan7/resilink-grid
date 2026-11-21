@@ -53,7 +53,7 @@ export default function ClinicalOverview({
       `HARDWARE LINK: NXP TinyML: ${nxpTelemetry?.state_str || 'NORMAL_RUN'} (10.3ms INT8) | ResQMesh: ACKNOWLEDGED (0 Loss)`,
       `DECISION LAYER: Laya System-1 Priority: PRIORITY_HIGH (<20ms)`,
       `GPS COORDINATES: ${lat}, ${lng}`,
-      `LOCATION: Brookes Haven Layout, 80 Feet Road, JP Nagar Phase 8, Bengaluru 560076`,
+      `LOCATION: RR Nagar / Kengeri Satellite Sector, Bengaluru 560098`,
       `TURN-BY-TURN NAVIGATION: https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`,
       `GOOGLE MAPS PIN: https://www.google.com/maps?q=${lat},${lng}`,
       `RESCUE CHANNEL: AMBULANCE DISPATCH TAC-1 (154.280 MHz)`,
@@ -331,7 +331,7 @@ export default function ClinicalOverview({
                   <span className="font-mono font-black text-[#1A241C] text-sm tracking-tight">{lat}, {lng}</span>
                   <span className="text-[10px] text-[#2D6A4F] font-bold block flex items-center gap-1">
                     <MapPin className="w-3 h-3 text-[#2D6A4F]" />
-                    <span>JP Nagar Ph 8 &bull; ±2.4m</span>
+                    <span>RR Nagar Sector &bull; ±2.4m</span>
                   </span>
                 </div>
               </div>
@@ -557,7 +557,7 @@ export default function ClinicalOverview({
                 <strong className="text-[#1A241C] font-mono text-sm">{lng}</strong>
               </div>
               <div className="text-[9px] text-[#556455] pt-1 border-t border-[#D5CEBF]/40 font-medium truncate">
-                80 Feet Rd &bull; Brookes Haven Layout &bull; JP Nagar Ph 8
+                80 Feet Rd &bull; Brookes Haven Layout &bull; RR Nagar Sector
               </div>
             </div>
 

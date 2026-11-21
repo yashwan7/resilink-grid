@@ -4,8 +4,8 @@
 import { Hospital, Pharmacy, BloodBank, Ambulance, EmergencyTrigger, AuditRecord, TriagePatient } from '../types';
 
 // Demo coordinates: Victoria Hospital / Central Bangalore area
-const DEMO_LAT = 12.9647;
-const DEMO_LON = 77.5768;
+const DEMO_LAT = 12.902092;
+const DEMO_LON = 77.504736;
 
 export function haversineDistanceKm(lat1: number, lon1: number, lat2: number, lon2: number): number {
   const R = 6371; // Earth radius in km
@@ -26,8 +26,8 @@ let mockHospitals: Hospital[] = [
   {
     id: 'hosp-001',
     name: 'Victoria Hospital & Trauma Centre',
-    lat: 12.9647,
-    lon: 77.5768,
+    lat: 12.902092,
+    lon: 77.504736,
     phone: '+91-80-26701150',
     beds_free: 18,
     icu_free: 4,
@@ -39,8 +39,8 @@ let mockHospitals: Hospital[] = [
   {
     id: 'hosp-002',
     name: 'Bowring & Lady Curzon Hospital',
-    lat: 12.9822,
-    lon: 77.6046,
+    lat: 12.919592,
+    lon: 77.532536,
     phone: '+91-80-25591325',
     beds_free: 9,
     icu_free: 2,
@@ -52,8 +52,8 @@ let mockHospitals: Hospital[] = [
   {
     id: 'hosp-003',
     name: "St. John's Medical College Hospital",
-    lat: 12.9344,
-    lon: 77.6192,
+    lat: 12.871792,
+    lon: 77.547136,
     phone: '+91-80-22065000',
     beds_free: 24,
     icu_free: 8,
@@ -65,8 +65,8 @@ let mockHospitals: Hospital[] = [
   {
     id: 'hosp-004',
     name: 'Manipal Hospital HAL Airport Road',
-    lat: 12.9584,
-    lon: 77.6489,
+    lat: 12.895792,
+    lon: 77.576836,
     phone: '+91-80-25024444',
     beds_free: 32,
     icu_free: 11,
@@ -81,8 +81,8 @@ let mockPharmacies: Pharmacy[] = [
   {
     id: 'pharm-001',
     name: 'Apollo Pharmacy - KR Market',
-    lat: 12.9632,
-    lon: 77.5750,
+    lat: 12.900592,
+    lon: 77.502936,
     phone: '+91-80-26705541',
     as_of: new Date(Date.now() - 5 * 60000).toISOString(),
     source: 'simulated',
@@ -98,8 +98,8 @@ let mockPharmacies: Pharmacy[] = [
   {
     id: 'pharm-002',
     name: 'MedPlus - Richmond Town',
-    lat: 12.9678,
-    lon: 77.6015,
+    lat: 12.905192,
+    lon: 77.529436,
     phone: '+91-80-22241199',
     as_of: new Date(Date.now() - 18 * 60000).toISOString(), // STALE
     source: 'cached',
@@ -113,8 +113,8 @@ let mockPharmacies: Pharmacy[] = [
   {
     id: 'pharm-003',
     name: 'Pradhan Mantri Jan Aushadhi Kendra',
-    lat: 12.9750,
-    lon: 77.5850,
+    lat: 12.912392,
+    lon: 77.512936,
     phone: '+91-80-22879900',
     as_of: new Date(Date.now() - 2 * 60000).toISOString(),
     source: 'live',
@@ -130,8 +130,8 @@ let mockBloodBanks: BloodBank[] = [
   {
     id: 'bb-001',
     name: 'Indian Red Cross Society Blood Centre',
-    lat: 12.9790,
-    lon: 77.5910,
+    lat: 12.916392,
+    lon: 77.518936,
     phone: '+91-80-22268435',
     as_of: new Date(Date.now() - 3 * 60000).toISOString(),
     source: 'live',
@@ -149,8 +149,8 @@ let mockBloodBanks: BloodBank[] = [
   {
     id: 'bb-002',
     name: 'Rashtrotthana Blood Centre - Chamrajpet',
-    lat: 12.9560,
-    lon: 77.5680,
+    lat: 12.893392,
+    lon: 77.495936,
     phone: '+91-80-26612730',
     as_of: new Date(Date.now() - 8 * 60000).toISOString(),
     source: 'simulated',
@@ -168,8 +168,8 @@ let mockBloodBanks: BloodBank[] = [
   {
     id: 'bb-003',
     name: 'Rotary Bangalore TTK Blood Centre',
-    lat: 12.9860,
-    lon: 77.6250,
+    lat: 12.923392,
+    lon: 77.552936,
     phone: '+91-80-25287903',
     as_of: new Date(Date.now() - 22 * 60000).toISOString(), // STALE
     source: 'cached',
@@ -189,8 +189,8 @@ let mockBloodBanks: BloodBank[] = [
 let mockAmbulances: Ambulance[] = [
   {
     id: 'AMB-1081',
-    lat: 12.9680,
-    lon: 77.5810,
+    lat: 12.905392,
+    lon: 77.508936,
     status: 'FREE',
     contact: '+91-98801-08101',
     as_of: new Date().toISOString(),
@@ -198,8 +198,8 @@ let mockAmbulances: Ambulance[] = [
   },
   {
     id: 'AMB-1082',
-    lat: 12.9590,
-    lon: 77.5720,
+    lat: 12.896392,
+    lon: 77.499936,
     status: 'FREE',
     contact: '+91-98801-08102',
     as_of: new Date().toISOString(),
@@ -207,8 +207,8 @@ let mockAmbulances: Ambulance[] = [
   },
   {
     id: 'AMB-1083',
-    lat: 12.9730,
-    lon: 77.6100,
+    lat: 12.910392,
+    lon: 77.537936,
     status: 'BUSY',
     contact: '+91-98801-08103',
     as_of: new Date().toISOString(),

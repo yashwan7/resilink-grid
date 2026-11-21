@@ -40,7 +40,7 @@ export const LocalMonitor: React.FC = () => {
 
   // Link State
   const [linkState, setLinkState] = useState<'HEALTHY' | 'DEGRADING' | 'CRITICAL' | 'SMS_FALLBACK'>('HEALTHY');
-  const [gpsFix, setGpsFix] = useState({ lat: 12.9647, lon: 77.5768, satellites: 8, fix: '3D DGPS' });
+  const [gpsFix, setGpsFix] = useState({ lat: 12.902092, lon: 77.504736, satellites: 8, fix: '3D DGPS' });
 
   // 1 Hz simulation tick
   useEffect(() => {
