@@ -274,3 +274,149 @@ def test_human_override(test_device):
     emg_record = get_emergency_by_id(emg_id)
     assert emg_record["status"] == "EN_ROUTE"
     assert emg_record["allocated_hospital_id"] == "HOSP-05"
+
+
+def test_prearrival_golden_hour_handoff(test_device):
+    """Verifies pre-arrival handoff delivery with ABHA ID and 18.2 min time saved metric."""
+    from services.emergency_service import get_prearrival_handoff
+
+    now_ts = int(time.time())
+    dev_id = test_device["device_id"]
+    priv = test_device["priv_hex"]
+
+    canonical_trigger = {
+        "class": "P0",
+        "counter": 1007,
+        "device_id": dev_id,
+        "lat": 12.9716,
+        "lon": 77.5946,
+        "need": ["ICU", "O2"],
+        "pseudonym": "PT-GOLDEN-HR",
+        "ts": now_ts
+    }
+    sig = sign_p256(priv, canonical_json(canonical_trigger))
+
+    res = trigger_emergency(
+        pseudonym="PT-GOLDEN-HR",
+        lat=12.9716,
+        lon=77.5946,
+        ts_sec=now_ts,
+        priority_class="P0",
+        need=["ICU", "O2"],
+        device_id=dev_id,
+        counter=1007,
+        signature_bytes=sig
+    )
+    emg_id = res["emergency_id"]
+
+    handoff = get_prearrival_handoff(emg_id)
+    assert handoff["status"] == "HANDOFF_READY"
+    assert handoff["abha_id"] == "91-8273-1928-3482@abdm"
+    assert handoff["golden_hour_metrics"]["net_time_saved_min"] == 18.2
+    assert len(handoff["prearrival_clinical_context"]["allergies"]) >= 2
+    assert len(handoff["prearrival_clinical_context"]["medications"]) >= 2
+    assert len(handoff["prearrival_clinical_context"]["vitals_10m_trend"]) == 6
+    assert handoff["prearrival_clinical_context"]["vitals_10m_trend"][-1]["shock_index"] == 1.73
+    assert "Decision support, not a diagnosis" in handoff["cdsco_disclaimer"]
+
+
+def test_shamir_break_glass_quorum_and_audit(test_device):
+    """Verifies 2-of-3 Shamir break-glass threshold unlock and cryptographic audit logging."""
+    from services.emergency_service import execute_break_glass_unlock
+    from db.audit import verify_audit_chain
+
+    now_ts = int(time.time())
+    dev_id = test_device["device_id"]
+    priv = test_device["priv_hex"]
+
+    canonical_trigger = {
+        "class": "P0",
+        "counter": 1008,
+        "device_id": dev_id,
+        "lat": 12.9716,
+        "lon": 77.5946,
+        "need": ["BLOOD"],
+        "pseudonym": "PT-UNCONSCIOUS",
+        "ts": now_ts
+    }
+    sig = sign_p256(priv, canonical_json(canonical_trigger))
+
+    res = trigger_emergency(
+        pseudonym="PT-UNCONSCIOUS",
+        lat=12.9716,
+        lon=77.5946,
+        ts_sec=now_ts,
+        priority_class="P0",
+        need=["BLOOD"],
+        device_id=dev_id,
+        counter=1008,
+        signature_bytes=sig
+    )
+    emg_id = res["emergency_id"]
+
+    # 1. Single share must fail (below quorum)
+    with pytest.raises(ValueError, match="Minimum 2 valid Shamir shares required"):
+        execute_break_glass_unlock(emg_id, ["SHARE-1-PARAMEDIC-7F89C2A"], "PARAMEDIC_01")
+
+    # 2. Duplicate shares must fail
+    with pytest.raises(ValueError, match="Invalid or duplicate key shares"):
+        execute_break_glass_unlock(emg_id, ["SHARE-1-PARAMEDIC-7F89C2A", "SHARE-1-PARAMEDIC-7F89C2A"], "PARAMEDIC_01")
+
+    # 3. Two distinct valid shares succeed (2-of-3)
+    unlock_res = execute_break_glass_unlock(
+        emergency_id=emg_id,
+        shares=["SHARE-1-PARAMEDIC-7F89C2A", "SHARE-2-ERNURSE-9B43D1E"],
+        actor_id="DR_TRAUMA_CHIEF",
+        reason="Severe blunt polytrauma, GCS 4, unconscious"
+    )
+    assert unlock_res["status"] == "UNLOCKED"
+    assert "EPH-TOKEN-" in unlock_res["ephemeral_decrypt_token"]
+    assert len(unlock_res["authorized_roles"]) == 2
+
+    # 4. Verify audit hash chain captured BREAK_GLASS_UNLOCKED
+    chain_status = verify_audit_chain()
+    assert chain_status["valid"] is True
+
+
+def test_fhir_r4_abdm_bundle_generation(test_device):
+    """Verifies generation of compliant FHIR R4 Bundle conforming to ABDM standards."""
+    from services.emergency_service import generate_fhir_bundle
+
+    now_ts = int(time.time())
+    dev_id = test_device["device_id"]
+    priv = test_device["priv_hex"]
+
+    canonical_trigger = {
+        "class": "P0",
+        "counter": 1009,
+        "device_id": dev_id,
+        "lat": 12.9716,
+        "lon": 77.5946,
+        "need": ["ICU"],
+        "pseudonym": "PT-FHIR-TEST",
+        "ts": now_ts
+    }
+    sig = sign_p256(priv, canonical_json(canonical_trigger))
+
+    res = trigger_emergency(
+        pseudonym="PT-FHIR-TEST",
+        lat=12.9716,
+        lon=77.5946,
+        ts_sec=now_ts,
+        priority_class="P0",
+        need=["ICU"],
+        device_id=dev_id,
+        counter=1009,
+        signature_bytes=sig
+    )
+    emg_id = res["emergency_id"]
+
+    bundle = generate_fhir_bundle(emg_id)
+    assert bundle["resourceType"] == "Bundle"
+    assert bundle["type"] == "document"
+    assert len(bundle["entry"]) >= 5
+
+    # Check Patient resource has ABHA identifier
+    patient_entry = next(e["resource"] for e in bundle["entry"] if e["resource"]["resourceType"] == "Patient")
+    assert patient_entry["identifier"][0]["value"] == "91-8273-1928-3482@abdm"
+

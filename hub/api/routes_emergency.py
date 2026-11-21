@@ -10,7 +10,8 @@ from pydantic import BaseModel, Field
 from typing import List, Optional
 
 from services.emergency_service import (
-    trigger_emergency, get_emergency_by_id, apply_human_override
+    trigger_emergency, get_emergency_by_id, apply_human_override,
+    get_prearrival_handoff, execute_break_glass_unlock, generate_fhir_bundle
 )
 
 router = APIRouter(prefix="/v1/emergency", tags=["Emergency"])
@@ -28,12 +29,61 @@ class EmergencyTriggerRequest(BaseModel):
     signature_hex: str = Field(..., description="64-byte raw ECDSA signature hex over canonical trigger payload")
 
 
+class BreakGlassRequest(BaseModel):
+    shares: List[str] = Field(..., min_items=2, description="At least 2 valid Shamir key shares for threshold quorum")
+    actor_id: str = Field(..., description="ID of clinician or paramedic initiating break-glass")
+    reason: str = Field("Unconscious trauma patient emergency admission", description="Audited clinical justification")
+
+
 class HumanOverrideRequest(BaseModel):
     operator_id: str = Field(..., description="ID of dispatch operator")
     new_status: Optional[str] = Field(None, description="New status: ASSIGNED, EN_ROUTE, ARRIVED, CANCELLED")
     new_ambulance_id: Optional[str] = Field(None, description="Reassigned ambulance ID")
     new_hospital_id: Optional[str] = Field(None, description="Reassigned hospital ID")
     reason: str = Field("Manual operator override", description="Clinical or dispatch reason")
+
+
+@router.get("/{id}/handoff")
+def get_emergency_handoff(id: str = Path(..., description="Emergency ID")):
+    """
+    Pre-arrival Golden Hour Handoff endpoint.
+    Delivers encrypted patient medical context, ABHA identifier, 10-minute vitals trend,
+    and net time saved metrics to receiving ER hospital before ambulance arrival.
+    """
+    try:
+        return get_prearrival_handoff(id)
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail={"error": str(e)})
+
+
+@router.post("/{id}/break-glass")
+def post_break_glass_unlock(id: str, req: BreakGlassRequest):
+    """
+    Shamir 2-of-3 break-glass threshold unlock for unconscious patients.
+    Validates quorum of key shares and creates an immutable cryptographic audit event
+    in the HMAC-SHA256 hash chain before granting access.
+    """
+    try:
+        return execute_break_glass_unlock(
+            emergency_id=id,
+            shares=req.shares,
+            actor_id=req.actor_id,
+            reason=req.reason
+        )
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail={"error": str(e)})
+
+
+@router.get("/{id}/fhir")
+def get_emergency_fhir(id: str = Path(..., description="Emergency ID")):
+    """
+    Exports pre-arrival patient context as a compliant FHIR R4 Bundle
+    meeting Ayushman Bharat Digital Mission (ABDM) / NRCeS specifications.
+    """
+    try:
+        return generate_fhir_bundle(id)
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail={"error": str(e)})
 
 
 @router.post("/trigger")

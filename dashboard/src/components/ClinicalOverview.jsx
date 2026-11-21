@@ -5,7 +5,7 @@ import {
   ChevronRight, Radio, Cpu, Compass, 
   Gauge, ExternalLink, RefreshCw, AlertTriangle,
   Sparkles, CheckCircle2, ShieldAlert,
-  Siren, Share2, Navigation, MapPin, Copy, Check, X, Terminal
+  Siren, Share2, Navigation, MapPin, Copy, Check, X, Terminal, Clock, Unlock
 } from 'lucide-react';
 import { useMqttTelemetry } from '../lib/useMqttTelemetry';
 import Esp32FieldSensorsCard from './Esp32FieldSensorsCard';
@@ -202,6 +202,43 @@ export default function ClinicalOverview({
           </button>
         </div>
 
+      </div>
+
+      {/* ================= PRE-ARRIVAL "GOLDEN HOUR" HANDOFF ALERT & ACTION ================= */}
+      <div className="nm-flat rounded-2xl p-4 border-2 border-amber-500/50 bg-gradient-to-r from-amber-500/15 via-[#1A241C]/5 to-transparent relative overflow-hidden shadow-lg">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 relative z-10">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 nm-inset rounded-xl flex items-center justify-center text-amber-600 border border-amber-500/40 bg-[#FFFBEB] shrink-0">
+              <Clock className="w-5 h-5 animate-pulse" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="text-xs font-black tracking-wider text-[#1A241C] uppercase">
+                  PRE-ARRIVAL "GOLDEN HOUR" HANDOFF ACTIVE
+                </span>
+                <span className="px-2 py-0.5 rounded-full text-[9px] font-bold bg-amber-500 text-white shadow-sm font-mono">
+                  18.2m SAVED
+                </span>
+                <span className="px-2 py-0.5 rounded-full text-[9px] font-bold bg-emerald-600 text-white shadow-sm font-mono">
+                  ABDM / FHIR R4 NATIVE
+                </span>
+              </div>
+              <p className="text-[11px] text-[#556455] mt-0.5">
+                Encrypted medical context (ABHA: 91-8273-1928-3482, Allergies, Active Meds, 10m Vitals Trend) arriving at St. John's ER before ambulance. Shamir 2-of-3 break-glass ready.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 shrink-0">
+            <button
+              onClick={() => onNavigateTab && onNavigateTab('golden-hour')}
+              className="px-4 py-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white text-xs font-black rounded-xl shadow-md flex items-center gap-2 transition-all font-mono"
+            >
+              <span>OPEN ER HANDOFF CARD</span>
+              <ChevronRight className="w-3.5 h-3.5" />
+            </button>
+          </div>
+        </div>
       </div>
 
       {/* ================= NXP FRDM-MCXN236 DEDICATED LIVE 1-SEC TELECAST STATION ================= */}

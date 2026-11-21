@@ -3,7 +3,10 @@ RESILINK GRID - Services Package
 Hub owner: Harshith
 """
 from .ingest_service import ingest_envelope, IngestNACK
-from .emergency_service import trigger_emergency, process_outbox_retry_worker
+from .emergency_service import (
+    trigger_emergency, process_outbox_retry_worker,
+    get_prearrival_handoff, execute_break_glass_unlock, generate_fhir_bundle
+)
 from .facility_service import (
     haversine_km,
     is_record_stale,
@@ -29,4 +32,7 @@ __all__ = [
     "process_snapshot_request",
     "get_triage_queue",
     "get_ranking_formula_spec",
+    "get_prearrival_handoff",
+    "execute_break_glass_unlock",
+    "generate_fhir_bundle",
 ]

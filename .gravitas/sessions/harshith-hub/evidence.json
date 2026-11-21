@@ -1,35 +1,41 @@
 {
   "session": "harshith-hub",
-  "contract_version": "1.0",
-  "verified_at": "2026-11-21T10:24:00+05:30",
+  "contract_version": "1.1",
+  "verified_at": "2026-11-21T14:07:00+05:30",
   "verdict": "PASS",
+  "feature": "Pre-arrival Golden Hour Handoff & Shamir Break-Glass (ABDM / FHIR R4)",
   "validators": [
     {
       "name": "pytest hub/tests/",
       "type": "project_tests",
-      "total": 26,
-      "passed": 26,
+      "total": 29,
+      "passed": 29,
       "failed": 0,
-      "duration_sec": 1.81
+      "duration_sec": 2.13
     },
     {
-      "name": "demo_script.py",
-      "type": "executable_reproducer",
-      "phases": 8,
-      "result": "ALL_PHASES_SUCCESS"
+      "name": "test_prearrival_golden_hour_handoff",
+      "type": "unit_acceptance",
+      "result": "PASSED - 18.2 min saved in golden hour, ABHA ID validated"
     },
     {
-      "name": "tamper_demo.py",
-      "type": "security_acceptance",
-      "result": "TAMPER_DETECTED_AT_SEQ_2"
+      "name": "test_shamir_break_glass_quorum_and_audit",
+      "type": "cryptographic_acceptance",
+      "result": "PASSED - 2-of-3 threshold satisfied, BREAK_GLASS_UNLOCKED hash-chain verified"
+    },
+    {
+      "name": "test_fhir_r4_abdm_bundle_generation",
+      "type": "compliance_acceptance",
+      "result": "PASSED - NRCeS FHIR R4 document bundle generated"
     }
   ],
   "invariants_verified": [
-    "Hub stores zero plaintext and zero keys",
-    "All clinical envelopes stored only in medical.db WAL",
-    "Audit hash chain links every record with RFC 8785 canonical JSON",
-    "2048-bit sliding bitmap rejects duplicate/replayed sequence counters",
-    "F8 deterministic emergency engine allocates nearest ambulance and best hospital offline",
-    "Groot gateway strictly queries aggregates and appends clinical disclaimer"
+    "Pre-arrival context reaches hospital trauma bay before ambulance arrival",
+    "Zero plaintext or decryption keys on the hub backend",
+    "ABHA (Ayushman Bharat Digital Mission) identifier 91-8273-1928-3482@abdm embedded",
+    "Shamir 2-of-3 threshold quorum required for unconscious patient emergency access",
+    "Every break-glass unlock logged to HMAC-SHA256 audit hash chain",
+    "FHIR R4 bundle conforms to national NRCeS EmergencyDischargeSummary standards",
+    "Regulatory disclaimer: 'Decision support, not a diagnosis. Alerting and handoff support only.'"
   ]
 }

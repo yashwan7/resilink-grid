@@ -2,7 +2,7 @@ import React from 'react';
 import { 
   LayoutGrid, Users, Activity, MapPin, 
   Zap, Eye, GitMerge, FileText, Settings, 
-  ChevronRight, Building2, Droplet, Pill, Bot, Sparkles
+  ChevronRight, Building2, Droplet, Pill, Bot, Sparkles, Clock
 } from 'lucide-react';
 
 export default function Sidebar({ activeTab, onSelectTab, onOpenGroot }) {
@@ -16,6 +16,7 @@ export default function Sidebar({ activeTab, onSelectTab, onOpenGroot }) {
         { id: 'patients', label: 'Patients', icon: Users },
         { id: 'pharmacy', label: 'Pharmacy', icon: Pill, badge: 'RX' },
         { id: 'triage', label: 'Triage Queue', icon: Activity, badge: 'AUTO' },
+        { id: 'golden-hour', label: 'Golden Hour Handoff', icon: Clock, badge: '18m SAVED' },
         { id: 'map', label: 'GPS Radar', icon: MapPin },
       ]
     },

@@ -15,6 +15,7 @@ import BloodBankNetwork from './components/BloodBankNetwork';
 import FailoverTinyMLView from './components/FailoverTinyMLView';
 import EOGSecurityView from './components/EOGSecurityView';
 import PharmacyNetwork from './components/PharmacyNetwork';
+import GoldenHourHandoff from './components/GoldenHourHandoff';
 import GrootChatBot from './components/GrootChatBot';
 import { 
   HeartPulse, ShieldAlert, RefreshCw, 
@@ -384,6 +385,12 @@ export default function App() {
               onSelectPatient={handleSelectPatient}
             />
           </div>
+        )}
+
+        {activeTab === 'golden-hour' && (
+          <GoldenHourHandoff 
+            onNavigateTab={setActiveTab}
+          />
         )}
 
         {activeTab === 'map' && (

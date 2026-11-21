@@ -415,6 +415,143 @@
         }
       }
     },
+    "/v1/emergency/{id}/handoff": {
+      "get": {
+        "tags": [
+          "Emergency"
+        ],
+        "summary": "Get Emergency Handoff",
+        "description": "Pre-arrival Golden Hour Handoff endpoint.\nDelivers encrypted patient medical context, ABHA identifier, 10-minute vitals trend,\nand net time saved metrics to receiving ER hospital before ambulance arrival.",
+        "operationId": "get_emergency_handoff_v1_emergency__id__handoff_get",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Emergency ID",
+              "title": "Id"
+            },
+            "description": "Emergency ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/emergency/{id}/break-glass": {
+      "post": {
+        "tags": [
+          "Emergency"
+        ],
+        "summary": "Post Break Glass Unlock",
+        "description": "Shamir 2-of-3 break-glass threshold unlock for unconscious patients.\nValidates quorum of key shares and creates an immutable cryptographic audit event\nin the HMAC-SHA256 hash chain before granting access.",
+        "operationId": "post_break_glass_unlock_v1_emergency__id__break_glass_post",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BreakGlassRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/emergency/{id}/fhir": {
+      "get": {
+        "tags": [
+          "Emergency"
+        ],
+        "summary": "Get Emergency Fhir",
+        "description": "Exports pre-arrival patient context as a compliant FHIR R4 Bundle\nmeeting Ayushman Bharat Digital Mission (ABDM) / NRCeS specifications.",
+        "operationId": "get_emergency_fhir_v1_emergency__id__fhir_get",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Emergency ID",
+              "title": "Id"
+            },
+            "description": "Emergency ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/emergency/trigger": {
       "post": {
         "tags": [
@@ -982,6 +1119,36 @@
   },
   "components": {
     "schemas": {
+      "BreakGlassRequest": {
+        "properties": {
+          "shares": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "minItems": 2,
+            "title": "Shares",
+            "description": "At least 2 valid Shamir key shares for threshold quorum"
+          },
+          "actor_id": {
+            "type": "string",
+            "title": "Actor Id",
+            "description": "ID of clinician or paramedic initiating break-glass"
+          },
+          "reason": {
+            "type": "string",
+            "title": "Reason",
+            "description": "Audited clinical justification",
+            "default": "Unconscious trauma patient emergency admission"
+          }
+        },
+        "type": "object",
+        "required": [
+          "shares",
+          "actor_id"
+        ],
+        "title": "BreakGlassRequest"
+      },
       "ConsultSessionCreate": {
         "properties": {
           "patient_pseudonym": {
