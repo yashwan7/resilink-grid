@@ -14,12 +14,14 @@ import {
   Bot, 
   Lock, 
   KeyRound,
-  Sparkles
+  Sparkles,
+  Clock
 } from 'lucide-react';
 
 export type TabType = 
   | 'overview' 
   | 'triage' 
+  | 'golden-hour'
   | 'capacity' 
   | 'bloodbank' 
   | 'pharmacy' 
@@ -54,6 +56,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       heading: 'CLINICAL COMMAND',
       items: [
         { id: 'triage' as TabType, label: 'Triage Queue', icon: Activity, badge: 'F8' },
+        { id: 'golden-hour' as TabType, label: 'Golden Hour Handoff', icon: Clock, badge: '18m SAVED' },
         { id: 'capacity' as TabType, label: 'Hospital Capacity', icon: Building2, badge: 'SURGE' },
         { id: 'bloodbank' as TabType, label: 'Blood Bank Network', icon: Droplet, badge: 'HEMO' },
         { id: 'pharmacy' as TabType, label: 'Field Pharmacy', icon: Pill, badge: 'RX' },

@@ -12,6 +12,7 @@ import { FailoverTinyMLView } from './components/FailoverTinyMLView';
 import { AIReportsView } from './components/AIReportsView';
 import { GrootHubDrawer } from './components/GrootHubDrawer';
 import { DoctorDownloadModal } from './components/DownloadReportModal';
+import { GoldenHourHandoffView } from './components/GoldenHourHandoffView';
 import { Lock, KeyRound, ExternalLink, Bot, Sparkles, ShieldCheck } from 'lucide-react';
 import { HubApi } from './mock/hubApi';
 
@@ -30,6 +31,7 @@ export const App: React.FC = () => {
     const hash = window.location.hash.toLowerCase();
     const path = window.location.pathname.toLowerCase();
     if (path.includes('/local') || hash.includes('local')) setCurrentTab('local');
+    else if (path.includes('/golden') || hash.includes('golden')) setCurrentTab('golden-hour');
     else if (path.includes('/map') || hash.includes('map')) setCurrentTab('map');
     else if (path.includes('/capacity') || hash.includes('capacity')) setCurrentTab('capacity');
     else if (path.includes('/bloodbank') || hash.includes('bloodbank')) setCurrentTab('bloodbank');
@@ -157,6 +159,7 @@ export const App: React.FC = () => {
           {currentTab === 'triage' && (
             <TriageBoard unlocked={unlocked} onUnlockToggle={handleUnlockToggle} />
           )}
+          {currentTab === 'golden-hour' && <GoldenHourHandoffView />}
           {currentTab === 'capacity' && <HospitalCapacityView />}
           {currentTab === 'bloodbank' && <BloodBankView />}
           {currentTab === 'pharmacy' && <PharmacyView />}
