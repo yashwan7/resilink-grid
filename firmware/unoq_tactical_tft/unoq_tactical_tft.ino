@@ -485,25 +485,49 @@ void renderRfGraphStep() {
 // ====================================================================
 
 void setup() {
+  Serial.begin(115200);
+  delay(100);
+  Serial.println("\n[RESQMESH] UNO Q Booting Tactical Display...");
+
   pinMode(BUZZER_PIN, OUTPUT);
   digitalWrite(BUZZER_PIN, LOW);
 
+  // Set Chip Selects HIGH (inactive) before SPI init
   pinMode(TFT_CS, OUTPUT);
   pinMode(TOUCH_CS, OUTPUT);
   digitalWrite(TFT_CS, HIGH);
   digitalWrite(TOUCH_CS, HIGH);
 
+  // 1. HARDWARE RESET PULSE (CRITICAL for ILI9341)
+  pinMode(TFT_RST, OUTPUT);
+  digitalWrite(TFT_RST, HIGH);
+  delay(20);
+  digitalWrite(TFT_RST, LOW);
+  delay(50);
+  digitalWrite(TFT_RST, HIGH);
+  delay(150);
+
+  // 2. SPI INIT
   SPI.begin();
 
-  tft.begin();
+  // 3. ILI9341 INIT WITH 4MHz SAFE CLOCK (Prevents breadboard SPI timing failure)
+  Serial.println("[RESQMESH] Initializing ILI9341 at 4MHz...");
+  tft.begin(4000000);
   tft.setRotation(1);
 
+  // Immediate visual check - if this works, white screen disappears!
+  tft.fillScreen(BG);
+  Serial.println("[RESQMESH] Display cleared to BLACK successfully.");
+
+  // 4. TOUCH CONTROLLER INIT
   ts.begin();
+  Serial.println("[RESQMESH] XPT2046 Touch initialized.");
 
   beep(2400, 80);
 
   drawDashboard();
   drawValues();
+  Serial.println("[RESQMESH] Tactical HUD online.");
 }
 
 // ====================================================================
