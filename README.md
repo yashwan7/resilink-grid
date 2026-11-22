@@ -5,6 +5,15 @@
 
 ---
 
+## 🌐 Live Deployments & Repository Links
+
+- **Live Production Dashboard (Vercel):** [https://dashboard-pi-indol-76.vercel.app](https://dashboard-pi-indol-76.vercel.app)
+- **GitHub Repository:** [https://github.com/yashwan7/resilink-grid](https://github.com/yashwan7/resilink-grid)
+- **Tactical Grid Anchor:** `13.1365° N, 77.5646° E` (Yelahanka Sector, North Bengaluru 560064)
+
+
+---
+
 ## 1. System Architecture & Team Ownership
 
 | Subsystem | Team Member | Primary Technologies | Key Deliverables |
